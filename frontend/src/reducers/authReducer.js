@@ -29,18 +29,7 @@ export const authReducer = (state = initialState, action) => {
                 passwordResetRequest: "",
 
             };
-        case actionTypes.BUYER_LOGIN_SUCCESS:
-            localStorage.setItem('token', action.payload.token);
-            return {
-                ...state,
-                ...action.payload,
-                isAuthenticated: true,
-                isLoading: false,
-                user: action.payload.user,
-                passwordResetRequest: "",
-                user_type: 'buyer'
-            };
-        case actionTypes.SELLER_LOGIN_SUCCESS:
+        case actionTypes.LOGIN_SUCCESS:
             localStorage.setItem('token', action.payload.token);
 
             return {
@@ -49,8 +38,7 @@ export const authReducer = (state = initialState, action) => {
                 isAuthenticated: true,
                 isLoading: false,
                 user: action.payload.user,
-                passwordResetRequest: "",
-                user_type: "seller"
+                passwordResetRequest: ""
             };
         case actionTypes.CONTINUOUS_USER_AUTH_SUCCESS:
             return {

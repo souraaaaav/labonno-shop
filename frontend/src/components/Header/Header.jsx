@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { logout } from '../../actions/auth';
 import logo from '../../assets/img/White logo - no background.png';
-import profile_pic from '../../assets/img/avaters/avatar1.png';
 import './Header.css';
 const Header = () => {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     const [isScrolled, setIsScrolled] = useState(false);
+    const storeData = useSelector(state => state.auth);
+
     useEffect(() => {
         const handleScroll = () => {
             const currentScrollPos = window.pageYOffset;
@@ -22,6 +28,11 @@ const Header = () => {
         console.log('clicked');
         const toggleMenu = document.querySelector(".menu");
         toggleMenu.classList.toggle("active");
+    };
+    const handleLogout = () => {
+
+        dispatch(logout());
+        navigate('/');
     };
     return (
         <div id="sticker-sticky-wrapper" class="sticky-wrapper is-sticky">
@@ -45,13 +56,18 @@ const Header = () => {
                                             <NavLink exact to="/"
                                                 className={({ isActive }) => isActive ? "current-list-item" : ""}>Home</NavLink>
                                         </li>
+                                        {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified) ?
+                                            <>
+                                                <li>
+                                                    <NavLink exact to="/shop"
+                                                        className={({ isActive }) => isActive ? "current-list-item" : ""}>Menu</NavLink>
+                                                </li><li>
+                                                    <NavLink exact to="/orders"
+                                                        className={({ isActive }) => isActive ? "current-list-item" : ""}>My Orders</NavLink>
+                                                </li>
+                                            </> : null
+                                        }
                                         <li>
-                                            <NavLink exact to="/shop"
-                                                className={({ isActive }) => isActive ? "current-list-item" : ""}>Menu</NavLink>
-                                        </li><li>
-                                            <NavLink exact to="/orders"
-                                                className={({ isActive }) => isActive ? "current-list-item" : ""}>My Orders</NavLink>
-                                        </li><li>
                                             <NavLink exact to="/about"
                                                 className={({ isActive }) => isActive ? "current-list-item" : ""}>About us</NavLink>
                                         </li>
@@ -59,32 +75,32 @@ const Header = () => {
                                             <NavLink exact to="/contact"
                                                 className={({ isActive }) => isActive ? "current-list-item" : ""}>Contact us</NavLink>
                                         </li>
-                                        <li>
-                                            <div class="header-icons">
-                                                <Link class="shopping-cart" to="/cart">Cart <i class="fas fa-shopping-cart"></i> </Link>
-                                            </div>
-                                        </li>
+                                        {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified) ?
+                                            <li className='last-child'>
+                                                <div class="header-icons">
+                                                    <Link class="shopping-cart" to="/cart">Cart <i class="fas fa-shopping-cart"></i> </Link>
+                                                </div>
+                                            </li>
+                                            : null}
                                     </ul>
                                 </nav>
-                                <div className='logout-button'>
-                                    <div class="action" >
-                                        <div class="profile">
-                                            <img src={profile_pic} onClick={menuToggle} />
+                                {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified) ?
+                                    <div className='logout-button'>
+                                        <div class="action" >
+                                            <div class="profile">
+                                                <img src={storeData?.user?.profile_pic} onClick={menuToggle} />
+                                            </div>
+                                            <div class="menu">
+                                                <h3>{storeData?.user?.name}<br />
+                                                </h3>
+                                                <ul>
+                                                    <li>
+                                                        <span onClick={handleLogout}>Logout</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
-                                        <div class="menu">
-                                            <h3>Sourav Debnath<br />
-                                                {/* <span> Acting as SelleR</span> */}
-                                            </h3>
-                                            <ul>
-
-                                                <li>
-                                                    {/* <img src={profile_pic} /> */}
-                                                    <span>Logout</span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+                                    </div> : null}
                                 <div class="mobile-menu"></div>
 
                             </div>

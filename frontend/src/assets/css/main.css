@@ -640,10 +640,6 @@ nav.main-menu ul li:last-child a {
   display: inline-block;
 }
 
-nav.main-menu > ul li:last-child {
-  float: right;
-}
-
 .site-logo {
   float: left;
   max-width: 150px;

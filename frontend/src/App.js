@@ -11,6 +11,9 @@ import "./assets/css/responsive.css";
 import { Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
+import { useEffect } from "react";
+import { connect } from 'react-redux';
+import { check_continuous_auth } from "./actions/auth";
 import Footer from "./components/Footer/Footer";
 import Header from "./components/Header/Header";
 import About from "./pages/About";
@@ -28,7 +31,10 @@ import SinglePackage from "./pages/SinglePackage";
 import SinglePackageBuild from "./pages/SinglePackageBuild";
 import SingleProduct from "./pages/SingleProduct";
 
-function App() {
+function App({ check_continuous_auth }) {
+  useEffect(() => {
+    check_continuous_auth();
+  }, [check_continuous_auth]);
   return (
     <div>
       <Header />
@@ -65,4 +71,4 @@ function App() {
   );
 }
 
-export default App;
+export default connect(null, { check_continuous_auth })(App);

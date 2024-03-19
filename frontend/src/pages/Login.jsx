@@ -1,13 +1,43 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, Navigate, useSearchParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { login } from '../actions/auth';
 import Loader from '../components/Loader/Loader';
 import useLoading from '../hook/customHook';
-const Login = () => {
-    const isLoading = useLoading();
 
+const Login = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const isLoading = useLoading();
+    const storeData = useSelector(state => state.auth);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (searchParams.get('came_from') === "verified") {
+            toast.success("Account verification successful");
+        }
+    }, []);
+
+    const handleEmailChange = (event) => {
+        setEmail(event.target.value);
+    };
+
+    const handlePasswordChange = (event) => {
+        setPassword(event.target.value);
+    };
+    const handleSubmit = () => {
+        dispatch(login(email, password));
+    };
+
+    if (storeData.isAuthenticated && storeData.user && storeData.user.is_verified) {
+        toast.success("login success");
+        return <Navigate to="/shop" />;
+    }
     return (
         <>
-            {isLoading && <Loader />}
+            {(isLoading || storeData.isLoading) && <Loader />}
 
             <div class="breadcrumb-section breadcrumb-bg">
                 <div class="container">
@@ -43,13 +73,24 @@ const Login = () => {
                                             data-parent="#accordionExample">
                                             <div class="card-body">
                                                 <div class="billing-address-form">
-                                                    <form>
+                                                    <form onSubmit={handleSubmit}>
                                                         <p>
-                                                            <input type="text" placeholder="Email" />
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Email"
+                                                                value={email}
+                                                                onChange={handleEmailChange}
+                                                            />
                                                         </p>
                                                         <p>
-                                                            <input type="password" placeholder="Password" />
+                                                            <input
+                                                                type="password"
+                                                                placeholder="Password"
+                                                                value={password}
+                                                                onChange={handlePasswordChange}
+                                                            />
                                                         </p>
+
                                                     </form>
                                                 </div>
                                             </div>
@@ -63,13 +104,13 @@ const Login = () => {
 
                                     <div class="card single-accordion">
                                         <div class="card-header" id="headingOne">
-                                            <Link to="/shop">
-                                                <h5 class='create-post-submit-btn'>
-                                                    <span>
-                                                        Login
-                                                    </span>
-                                                </h5>
-                                            </Link>
+
+                                            <h5 class='create-post-submit-btn' onClick={handleSubmit}>
+                                                <span>
+                                                    Login
+                                                </span>
+                                            </h5>
+
                                         </div>
                                     </div>
 

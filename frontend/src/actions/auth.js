@@ -53,8 +53,7 @@ export const forget_password_confirm = ({ token, password }) => (dispatch) => {
         });
 };
 
-
-export const buyer_login = (email, password) => (dispatch) => {
+export const login = (email, password) => (dispatch) => {
     dispatch({ type: actionTypes.LOADING_START });
     const config = {
         headers: {
@@ -66,36 +65,10 @@ export const buyer_login = (email, password) => (dispatch) => {
     axios.post('/login/', body, config)
         .then(response => {
             dispatch({
-                type: actionTypes.BUYER_LOGIN_SUCCESS,
+                type: actionTypes.LOGIN_SUCCESS,
                 payload: response.data
             });
-            if (response.data.user.is_verified == false) {
-                toast.error("Please verify your account first!");
-            }
-        }).catch(err => {
-            dispatch({
-                type: actionTypes.LOGIN_FAILED
-            });
-            toast.error("login failed");
-        });
-
-};
-export const seller_login = (email, password) => (dispatch) => {
-    dispatch({ type: actionTypes.LOADING_START });
-    const config = {
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    };
-    const body = JSON.stringify({ email, password });
-    console.log(body);
-    axios.post('/login/', body, config)
-        .then(response => {
-            dispatch({
-                type: actionTypes.SELLER_LOGIN_SUCCESS,
-                payload: response.data
-            });
-            if (response.data.user.is_verified == false) {
+            if (response.data.user.is_verified === false) {
                 toast.error("Please verify your account first!");
             }
         }).catch(err => {

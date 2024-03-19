@@ -110,3 +110,7 @@
 .current-list-item {
   color: orange !important;
 }
+
+.last-child {
+  float: right;
+}
