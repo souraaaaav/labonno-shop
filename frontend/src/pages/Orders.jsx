@@ -1,8 +1,80 @@
-import React from 'react';
-import productImage from '../assets/img/products/product-img-1.png';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import Loader from '../components/Loader/Loader.jsx';
+import axios from '../helper/axios-helper.js';
+
 const Orders = () => {
+    const [orders, setOrders] = useState([]);
+    const [packageOrders, setPackageOrders] = useState([]);
+
+    const [loading, setLoading] = useState(false);
+    const storeData = useSelector(state => state.auth);
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [packageSearchTerm, setPackageSearchTerm] = useState('');
+
+    useEffect(() => {
+        if (storeData && storeData?.token) {
+            setLoading(true);
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${storeData.token}`
+                }
+            };
+
+            let url = '/orders/';
+            if (searchTerm) {
+                url += `?payment_id=${searchTerm}`;
+            }
+
+            axios.get(url, config)
+                .then(response => {
+                    console.log(response.data);
+                    setOrders(response.data);
+                    setLoading(false);
+                })
+                .catch(error => {
+                    console.error('Error fetching orders:', error);
+                    setLoading(false);
+                });
+        }
+    }, [storeData, searchTerm]);
+    useEffect(() => {
+        if (storeData && storeData?.token) {
+            setLoading(true);
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${storeData.token}`
+                }
+            };
+            let url = '/package-orders/';
+            if (packageSearchTerm) {
+                url += `?payment_id=${packageSearchTerm}`;
+            }
+
+            axios.get(url, config)
+                .then(response => {
+                    console.log(response.data);
+
+                    setPackageOrders(response.data);
+                    setLoading(false);
+                })
+                .catch(error => {
+                    console.error('Error fetching package orders:', error);
+                    setLoading(false);
+                });
+        }
+    }, [storeData, packageSearchTerm]);
+    const formatDate = (timestamp) => {
+        const date = new Date(timestamp);
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+        return date.toLocaleDateString('en-US', options);
+    };
     return (
         <>
+            {(loading) && <Loader />}
             <div class="breadcrumb-section breadcrumb-bg">
                 <div class="container">
                     <div class="row">
@@ -15,76 +87,163 @@ const Orders = () => {
                     </div>
                 </div>
             </div>
-            <div class="cart-section mt-150 mb-150">
+            <div class="cart-section mt-100 mb-150">
                 <div class="container">
-                    <div class="col-lg-8 offset-lg-2 text-center">
+                    {/* <div class="col-lg-8 offset-lg-2 text-center">
                         <div class="section-title">
                             <h3>Order ID <span class="orange-text">122-122-222-333</span></h3>
                         </div>
-                    </div>
+                    </div> */}
                     <div class="row">
-                        <div class="col-lg-8 col-md-12">
 
-                            <div class="cart-table-wrap">
-                                <table class="cart-table">
-                                    <thead class="cart-table-head">
-                                        <tr class="table-head-row">
-                                            <th class="product-remove"></th>
-                                            <th class="product-image">Product Image</th>
-                                            <th class="product-name">Name</th>
-                                            <th class="product-price">Price</th>
-                                            <th class="product-quantity">Quantity</th>
-                                            <th class="product-total">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr class="table-body-row">
-                                            <td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>
-                                            <td class="product-image"><img src={productImage} alt="" />
-                                            </td>
-                                            <td class="product-name">Chicken Curry</td>
-                                            <td class="product-price">85 tk</td>
-                                            <td class="product-quantity"><input type="number" placeholder="0" /></td>
-                                            <td class="product-total">1</td>
-                                        </tr>
-                                        <tr class="table-body-row">
-                                            <td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>
-                                            <td class="product-image"><img src={productImage} alt="" />
-                                            </td>
-                                            <td class="product-name">Dul</td>
-                                            <td class="product-price">70 tk</td>
-                                            <td class="product-quantity"><input type="number" placeholder="0" /></td>
-                                            <td class="product-total">1</td>
-                                        </tr>
-
-                                    </tbody>
-
-                                </table>
+                        <div class="col-lg-8 offset-lg-2 text-center">
+                            <div class="section-title">
+                                <h3>Product Orders List<span class="orange-text"></span></h3>
                             </div>
                         </div>
-
-                        <div class="col-lg-4">
+                        <div class="col-md-12 mb-20">
+                            <div class="product-filters">
+                                <ul>
+                                    <li>
+                                        <i className="fas fa-search" style={{ marginRight: '10px' }}></i>
+                                        <input
+                                            type="text"
+                                            placeholder="Filter by Payment ID"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            style={{ border: 'none', outline: 'none' }}
+                                        />
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
                             <div class="total-section">
                                 <table class="total-table">
                                     <thead class="total-table-head">
                                         <tr class="table-total-row">
-                                            <th>Total</th>
-                                            <th>Price</th>
+                                            <th>Payment Id</th>
+                                            <th>Order Placed Time</th>
+                                            <th>Total Price</th>
+                                            <th>Product Details</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr class="total-data">
-                                            <td><strong>Subtotal: </strong></td>
-                                            <td>155</td>
+                                        {orders ? orders.map(order => (
+                                            <tr key={order.id} className="total-data">
+                                                <td><strong>{order.payment_id}</strong></td>
+                                                <td>{formatDate(order.created_at)}</td>
+                                                <td>{order.total_price}</td>
+                                                <td>
+                                                    <table class="total-table">
+                                                        <thead class="total-table-head">
+                                                            <tr class="table-total-row">
+                                                                <th>Name</th>
+                                                                <th>Price(per unit)</th>
+                                                                <th>Quantity</th>
+                                                                <th>Total Price</th>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+                                                            {order.order_products.map((item, i) => (
+                                                                <tr key={i} className="total-data">
+                                                                    <td>{item.product.name}</td>
+                                                                    <td>{item.product.price}</td>
+                                                                    <td>{item.quantity}</td>
+                                                                    <td> {parseInt(item.product.price) * item.quantity}</td>
+                                                                </tr>
+                                                            ))}
+
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        )) : <tr className="total-data" ><td colSpan={4}>No Orders found!!!</td></tr>}
+
+                                    </tbody>
+                                </table>
+
+                            </div>
+
+
+                        </div>
+                        <div class="col-lg-8 offset-lg-2 text-center mt-80">
+                            <div class="section-title">
+                                <h3>Package Orders List<span class="orange-text"></span></h3>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mb-20">
+                            <div class="product-filters">
+                                <ul>
+                                    <li>
+                                        <i className="fas fa-search" style={{ marginRight: '10px' }}></i>
+                                        <input
+                                            type="text"
+                                            placeholder="Filter by Payment ID"
+                                            value={packageSearchTerm}
+                                            onChange={(e) => setPackageSearchTerm(e.target.value)}
+                                            style={{ border: 'none', outline: 'none' }}
+                                        />
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="total-section">
+                                <table class="total-table">
+                                    <thead class="total-table-head">
+                                        <tr class="table-total-row">
+                                            <th>Payment Id</th>
+
+                                            <th>Package Name</th>
+                                            <th>Order Placed Time</th>
+
+                                            <th>Total Price</th>
+                                            <th>Product Details</th>
                                         </tr>
-                                        <tr class="total-data">
-                                            <td><strong>Shipping: </strong></td>
-                                            <td>45 tk</td>
-                                        </tr>
-                                        <tr class="total-data">
-                                            <td><strong>Total: </strong></td>
-                                            <td>200 tk</td>
-                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {packageOrders ? packageOrders.map(order => (
+                                            <tr key={order.id} className="total-data">
+                                                <td><strong>{order.payment_id}</strong></td>
+                                                <td>{order.package.name}</td>
+                                                <td>{formatDate(order.created_at)}</td>
+
+                                                <td>{order.total_price}</td>
+                                                <td>
+                                                    <table class="total-table">
+                                                        <thead class="total-table-head">
+                                                            <tr class="table-total-row">
+                                                                <th>Name</th>
+                                                                <th>Price(per unit)</th>
+                                                                <th>Quantity</th>
+                                                                <th>Total Price</th>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+                                                            {order.package_order_products.map((item, i) => (
+                                                                <tr key={i} className="total-data">
+                                                                    <td>{item.product.name}</td>
+                                                                    <td>{item.product.price}</td>
+                                                                    <td>{item.quantity}</td>
+                                                                    <td> {parseInt(item.product.price) * item.quantity}</td>
+
+                                                                </tr>
+                                                            ))}
+                                                            <tr className="total-data">
+                                                                <td>Shipping</td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td>45</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        )) : <tr className="total-data" ><td colSpan={4}>No Orders found!!!</td></tr>}
+
                                     </tbody>
                                 </table>
 

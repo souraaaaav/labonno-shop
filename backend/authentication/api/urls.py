@@ -16,7 +16,13 @@ urlpatterns = [
     path('products/<int:pk>/', views.ProductDetail.as_view(), name='product-detail'),
 
     path('packages/', views.PackageList.as_view(), name='package-list'),
+    path('packages/<int:pk>/', views.PackageDetail.as_view(), name='package-detail'),
+
     path('create_order/', views.create_order, name='create_order'),
+    path('create_package_order/', views.create_package_order, name='create_package_order'),
+
+    path('orders/', views.UserOrderListView.as_view(), name='user_orders'),
+    path('package-orders/', views.PackageOrderListAPIView.as_view(), name='package_order_list'),
 
 ]
 

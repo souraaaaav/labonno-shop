@@ -1,5 +1,5 @@
 
-from authentication.models import ( User,Product, Package, Order, OrderProduct )
+from authentication.models import ( User,Product, Package, Order, OrderProduct, PackageOrder, PackageOrderProduct )
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import utils
-from .serializers import LoginSerializer, UserSerializer,ProductSerializer, PackageSerializer, OrderSerializer
+from .serializers import LoginSerializer, UserSerializer,ProductSerializer, PackageSerializer, OrderSerializer, PackageOrderSerializer
 
 class passwordChangeRequestView(generics.GenericAPIView):
 
@@ -191,6 +191,10 @@ class PackageList(generics.ListAPIView):
     queryset = Package.objects.all()
     serializer_class = PackageSerializer
 
+class PackageDetail(RetrieveAPIView):
+    queryset = Package.objects.all()
+    serializer_class = PackageSerializer
+
 from rest_framework.decorators import api_view,permission_classes
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -233,7 +237,115 @@ def create_order(request):
                 )
 
         serializer = OrderSerializer(order)
+        ordered_items = OrderProduct.objects.filter(order=order)
+
+        html_message = render_to_string('order_confirm.html', {
+                'fullname': user.name,
+                'payment_id': payment_id,
+                'total_price': total_price,
+                'ordered_items': ordered_items
+            })
+        plain_message = strip_tags(html_message)
+        send_mail(
+                "Invoice of Labonno Shop",
+                plain_message,
+                utils.EMAIL_ADDRESS,
+                [user.email],
+                html_message=html_message
+            )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_package_order(request):
+    try:
+        user = request.user
+        data = request.data
+
+        name = data.get('name')
+        address = data.get('address')
+        phone = data.get('phone')
+        bill = data.get('bill')
+        payment_id = data.get('payment_id')
+        total_price=data.get('total_price')
+        package_order=data.get('package_order')
+        cart_items = data.get('cart_items', []) 
+
+        print(data)
+        
+        order = PackageOrder.objects.create(
+            user=user,
+            name=name,
+            address=address,
+            phone=phone,
+            bill=bill,
+            payment_id=payment_id,
+            total_price=total_price,
+            package=Package.objects.get(pk=package_order)
+        )
+
+        for item in cart_items:
+            product_id = item['product_id']
+            quantity = item['quantity']
+            product_instance = get_object_or_404(Product, id=product_id)
+            order_product = PackageOrderProduct.objects.create(
+                    package_order=order,
+                    product=product_instance,
+                    quantity=quantity
+                )
+
+        serializer = PackageOrderSerializer(order)
+
+        ordered_items = PackageOrderProduct.objects.filter(package_order=order)
+
+        html_message = render_to_string('order_confirm.html', {
+                'fullname': user.name,
+                'payment_id': payment_id,
+                'total_price': total_price,
+                'ordered_items': ordered_items,
+                'package_name':Package.objects.get(pk=package_order).name
+            })
+        plain_message = strip_tags(html_message)
+        send_mail(
+                "Invoice of Labonno Shop",
+                plain_message,
+                utils.EMAIL_ADDRESS,
+                [user.email],
+                html_message=html_message
+            )
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+class UserOrderListView(generics.ListAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Order.objects.filter(user=user)
+
+        payment_id = self.request.query_params.get('payment_id', None)
+        if payment_id is not None:
+            queryset = queryset.filter(payment_id__icontains=payment_id)
+
+        return queryset
+    
+class PackageOrderListAPIView(generics.ListAPIView):
+    serializer_class = PackageOrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = PackageOrder.objects.filter(user=user)
+
+        payment_id = self.request.query_params.get('payment_id', None)
+        if payment_id is not None:
+            queryset = queryset.filter(payment_id__icontains=payment_id)
+
+        return queryset

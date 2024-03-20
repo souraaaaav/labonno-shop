@@ -1,13 +1,26 @@
 import { Link } from 'react-router-dom';
-import avatar from '../assets/img/avaters/avatar1.png';
-import avatar2 from '../assets/img/avaters/avatar2.png';
-import productImage from '../assets/img/latest-news/news-bg-2.png';
 import Loader from '../components/Loader/Loader';
+import axios from '../helper/axios-helper.js';
 import useLoading from '../hook/customHook';
+
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import './SingleProduct.css';
+
 const SinglePackage = () => {
     const isLoading = useLoading();
-
+    const [currPackage, setCurrPackage] = useState();
+    let { id } = useParams();
+    useEffect(() => {
+        axios.get('/packages/' + id)
+            .then(response => {
+                console.log(response.data);
+                setCurrPackage(response.data);
+            })
+            .catch(error => {
+                console.error('Error fetching packages:', error);
+            });
+    }, [id]);
     return (
 
         <>
@@ -28,33 +41,30 @@ const SinglePackage = () => {
             <div class="single-product mt-150 mb-150">
                 <div class="container">
                     <div class="row">
-                        <div class="col-md-5">
-                            <div class="single-product-img">
-                                <img src={productImage} alt="" />
-                            </div>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="single-product-content">
-                                <h3>Biriyani for Auditorium Package</h3>
-                                <div className='rating'>
-                                    <span class="fas fa-star checked"></span>
-                                    <span class="fas fa-star checked"></span>
-                                    <span class="fas fa-star checked"></span>
-                                    <span class="fas fa-star-half-alt checked"></span>
-                                    <span class="fa-regular fa-star checked"></span>
+                        {currPackage &&
+                            <>
+                                <div class="col-md-5">
+                                    <div class="single-product-img">
+                                        <img src={currPackage.image} alt="" />
+                                    </div>
                                 </div>
-                                {/* <p class="single-product-pricing"><span></span> 85tk</p> */}
-                                <p>Our delicious Biriyani specially crafted for large gatherings.Our Biriyani for Auditorium package is sure to satisfy every palate.
-                                </p>
-                                <div class="single-product-form">
-                                    <Link to="/cart" class="cart-btn"> Create Order</Link>
+                                <div class="col-md-7">
+                                    <div class="single-product-content">
+                                        <h3>{currPackage.name}</h3>
 
+                                        <p>{currPackage.description}
+                                        </p>
+                                        <div class="single-product-form">
+                                            <Link to={`/package-cart/${id}`} class="cart-btn"> Create Order</Link>
+
+                                        </div>
+
+                                    </div>
                                 </div>
-
-                            </div>
-                        </div>
+                            </>
+                        }
                     </div>
-                    <div class="row">
+                    {/* <div class="row">
                         <div class="comments-list-wrap">
                             <h3 class="comment-count-title">3 Comments</h3>
                             <div class="comment-list">
@@ -94,7 +104,7 @@ const SinglePackage = () => {
                                 <p><input type="submit" value="Submit" /></p>
                             </form>
                         </div>
-                    </div>
+                    </div> */}
 
                 </div>
             </div>

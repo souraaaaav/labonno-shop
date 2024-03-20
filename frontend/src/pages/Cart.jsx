@@ -7,6 +7,7 @@ const Cart = () => {
     const isLoading = useLoading();
     const storeData = useSelector(state => state.auth);
     const [cartItems, setCartItems] = useState([]);
+
     useEffect(() => {
         if (storeData && storeData?.user) {
             const cartData = localStorage.getItem(storeData.user.email);
@@ -38,11 +39,7 @@ const Cart = () => {
             const cartData = localStorage.getItem(storeData.user.email);
             const parsedCart = JSON.parse(cartData);
             parsedCart[id].count = newCount;
-
-            // Update the localStorage
             localStorage.setItem(storeData.user.email, JSON.stringify(parsedCart));
-
-            // Update the cartItems state
             setCartItems(Object.values(parsedCart));
         }
     };

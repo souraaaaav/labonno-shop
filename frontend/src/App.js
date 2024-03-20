@@ -8,7 +8,7 @@ import "./assets/css/meanmenu.min.css";
 import "./assets/css/owl.carousel.css";
 import "./assets/css/responsive.css";
 
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 
 import { useEffect } from "react";
@@ -25,6 +25,7 @@ import ForgetPasswordStart from "./pages/ForgetPasswordStart";
 import HomePage from './pages/HomePage';
 import Login from "./pages/Login";
 import Orders from "./pages/Orders";
+import PackageCart from "./pages/PackageCart";
 import Registration from "./pages/Registration";
 import Shop from "./pages/Shop";
 import SinglePackage from "./pages/SinglePackage";
@@ -32,9 +33,13 @@ import SinglePackageBuild from "./pages/SinglePackageBuild";
 import SingleProduct from "./pages/SingleProduct";
 
 function App({ check_continuous_auth }) {
+  const location = useLocation();
   useEffect(() => {
     check_continuous_auth();
   }, [check_continuous_auth]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
   return (
     <div>
       <Header />
@@ -48,6 +53,8 @@ function App({ check_continuous_auth }) {
         <Route exact path='/about' element={<About />} />
         <Route exact path='/checkout' element={<Checkout />} />
         <Route exact path='/cart' element={<Cart />} />
+        <Route exact path='/package-cart/:id' element={<PackageCart />} />
+
         <Route exact path='/shop' element={<Shop />} />
         <Route exact path='/forget-password-confirm' element={<ForgetPasswordConfirm />} />
         <Route exact path='/forget-password-start' element={<ForgetPasswordStart />} />

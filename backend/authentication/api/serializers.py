@@ -1,5 +1,5 @@
 
-from authentication.models import User,Product, Package,Order
+from authentication.models import User,Product, Package,Order, PackageOrder, OrderProduct, PackageOrderProduct
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
@@ -45,11 +45,26 @@ class LoginSerializer(serializers.Serializer):
         if user and user.is_active:
             return user
         raise serializers.ValidationError("Incorrect Credentials")
-    
+
+
+
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['id', 'name', 'price', 'description', 'image','rating']
+
+class OrderProductSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+    class Meta:
+        model = OrderProduct
+        fields = ['id', 'product', 'quantity']
+
+class PackageOrderProductSerializer(serializers.ModelSerializer):
+    product = ProductSerializer()
+
+    class Meta:
+        model = PackageOrderProduct
+        fields = ['id', 'product', 'quantity']
 
 class PackageSerializer(serializers.ModelSerializer):
     products = ProductSerializer(many=True, read_only=True)
@@ -59,6 +74,16 @@ class PackageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'products','image','description']
 
 class OrderSerializer(serializers.ModelSerializer):
+    order_products = OrderProductSerializer(many=True, read_only=True)
+
     class Meta:
         model = Order
-        fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at']
+        fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at','order_products']
+
+class PackageOrderSerializer(serializers.ModelSerializer):
+    package_order_products = PackageOrderProductSerializer(many=True, read_only=True)
+    package = PackageSerializer()
+
+    class Meta:
+        model = PackageOrder
+        fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at', 'package', 'package_order_products']

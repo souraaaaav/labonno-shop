@@ -64,7 +64,7 @@ const Checkout = () => {
 
 
     const handleSubmit = async (payment_id) => {
-
+        setLoading(true);
         const orderData = {
             name: name,
             address: address,
@@ -90,10 +90,14 @@ const Checkout = () => {
                 if (res.status === 200) {
                     toast.success("Successfully placed the order!!!");
                     localStorage.removeItem(storeData.user.email);
+                    setLoading(false);
+
                     navigate('/orders');
                 }
             })
             .catch(err => {
+                setLoading(false);
+
                 toast.error("Something went wrong!!!");
                 console.log("error", err);
             });
@@ -218,7 +222,7 @@ const Checkout = () => {
                                                                     try {
                                                                         const details = await actions.order.capture();
 
-                                                                        await handleSubmit(details.id);
+                                                                        await handleSubmit(details.purchase_units[0].payments.captures[0].id);
 
                                                                     } catch (error) {
 
