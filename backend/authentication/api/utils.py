@@ -2,8 +2,8 @@ from datetime import datetime
 
 from django.core.mail import EmailMessage
 
-EMAIL_ADDRESS="souravdebnath97@gmail.com"
-EMAIL_APP_PASSWORD="zzqounbfcxhditjt"
+EMAIL_ADDRESS="labonnoahmed0987@gmail.com"
+EMAIL_APP_PASSWORD="djfkgjzlteqomjhj"
 FRONTEND_URL="http://localhost:3000/"
 
 

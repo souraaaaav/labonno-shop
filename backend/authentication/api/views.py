@@ -207,9 +207,11 @@ def create_order(request):
         phone = data.get('phone')
         bill = data.get('bill')
         payment_id = data.get('payment_id')
-        cart_items = data.get('cart_items', [])  # Assuming cart_items is a list of dictionaries containing product_id and quantity
+        total_price=data.get('total_price')
+        cart_items = data.get('cart_items', []) 
 
-        total_price = 0
+        print(data)
+        
         order = Order.objects.create(
             user=user,
             name=name,

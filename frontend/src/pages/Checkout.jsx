@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
 import Loader from '../components/Loader/Loader';
 import axios from '../helper/axios-helper.js';
+import { clientId } from "../helper/paypal.js";
 import useLoading from '../hook/customHook';
-
 const Checkout = () => {
 
     const isLoading = useLoading();
@@ -14,12 +14,29 @@ const Checkout = () => {
     const navigate = useNavigate();
     const storeData = useSelector(state => state.auth);
     const [cartItems, setCartItems] = useState([]);
-    const [formData, setFormData] = useState({
-        name: '',
-        address: '',
-        phone: '',
-        bill: ''
-    });
+    const [subtotal, setSubtotal] = useState(0);
+    const [shippingCost, setShippingCost] = useState(45);
+    const [total, setTotal] = useState(0);
+    const [name, setName] = useState('');
+    const [address, setAddress] = useState('');
+    const [phone, setPhone] = useState('');
+    const [bill, setBill] = useState('');
+
+    const handleNameChange = (e) => {
+        setName(e.target.value);
+    };
+
+    const handleAddressChange = (e) => {
+        setAddress(e.target.value);
+    };
+
+    const handlePhoneChange = (e) => {
+        setPhone(e.target.value);
+    };
+
+    const handleBillChange = (e) => {
+        setBill(e.target.value);
+    };
 
 
     useEffect(() => {
@@ -33,36 +50,35 @@ const Checkout = () => {
             }
         }
     }, [storeData]);
-    const subtotal = cartItems.reduce((total, item) => {
-        return total + item.count * parseFloat(item.product.price);
-    }, 0);
+    useEffect(() => {
+        const newSubtotal = cartItems.reduce((total, item) => {
+            return total + item.count * parseFloat(item.product.price);
+        }, 0);
+        setSubtotal(newSubtotal);
+    }, [cartItems]);
 
-    const shippingCost = 45;
+    useEffect(() => {
+        const newTotal = subtotal + shippingCost;
+        setTotal(newTotal);
+    }, [subtotal, shippingCost]);
 
-    const total = subtotal + shippingCost;
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
-    };
-    console.log(formData);
 
     const handleSubmit = async (payment_id) => {
-        const orderData = JSON.stringify({
-            name: formData.name,
-            address: formData.address,
-            phone: formData.phone,
-            bill: formData.bill,
+
+        const orderData = {
+            name: name,
+            address: address,
+            phone: phone,
+            bill: bill,
             payment_id: payment_id,
             total_price: total,
             cart_items: cartItems.map(item => ({
                 product_id: item.product.id,
                 quantity: item.count
             }))
-        });
-        console.log('order', orderData);
+        };
+
+
         const config = {
             headers: {
                 'Content-Type': 'application/json',
@@ -79,6 +95,7 @@ const Checkout = () => {
             })
             .catch(err => {
                 toast.error("Something went wrong!!!");
+                console.log("error", err);
             });
     };
     return (
@@ -118,41 +135,49 @@ const Checkout = () => {
                                             <div class="card-body">
                                                 <div class="billing-address-form">
                                                     <form>
-                                                        <p><input
-                                                            type="text"
-                                                            name="name"
-                                                            placeholder="Name"
-                                                            value={formData.name}
-                                                            onChange={handleChange}
-                                                            required
-                                                        /></p>
-                                                        <p><input
-                                                            type="text"
-                                                            name="address"
-                                                            placeholder="Address"
-                                                            value={formData.address}
-                                                            onChange={handleChange}
-                                                            required
-                                                        /></p>
-                                                        <p><input
-                                                            type="tel"
-                                                            name="phone"
-                                                            placeholder="Phone"
-                                                            value={formData.phone}
-                                                            onChange={handleChange}
-                                                            required
-                                                        /></p>
-                                                        <p><textarea
-                                                            name="bill"
-                                                            id="bill"
-                                                            cols="30"
-                                                            rows="10"
-                                                            placeholder="Say Something"
-                                                            value={formData.bill}
-                                                            onChange={handleChange}
-                                                        ></textarea></p>
-
+                                                        <p>
+                                                            <input
+                                                                type="text"
+                                                                name="name"
+                                                                placeholder="Name"
+                                                                value={name}
+                                                                onChange={handleNameChange}
+                                                                required
+                                                            />
+                                                        </p>
+                                                        <p>
+                                                            <input
+                                                                type="text"
+                                                                name="address"
+                                                                placeholder="Address"
+                                                                value={address}
+                                                                onChange={handleAddressChange}
+                                                                required
+                                                            />
+                                                        </p>
+                                                        <p>
+                                                            <input
+                                                                type="tel"
+                                                                name="phone"
+                                                                placeholder="Phone"
+                                                                value={phone}
+                                                                onChange={handlePhoneChange}
+                                                                required
+                                                            />
+                                                        </p>
+                                                        <p>
+                                                            <textarea
+                                                                name="bill"
+                                                                id="bill"
+                                                                cols="30"
+                                                                rows="10"
+                                                                placeholder="Say Something"
+                                                                value={bill}
+                                                                onChange={handleBillChange}
+                                                            ></textarea>
+                                                        </p>
                                                     </form>
+
                                                 </div>
                                             </div>
                                         </div>
@@ -172,32 +197,39 @@ const Checkout = () => {
                                             data-parent="#accordionExample">
                                             <div class="card-body">
                                                 <div class="card-details">
-
-                                                    <PayPalScriptProvider options={{ "client-id": "AXFehoPpdZVzLMN4eU4bygIsn5cm3PBjaj35f48akBld5o9jV7AxswMTo8e5UUiDCBGCbK0C4I5S9JCr" }}>
-                                                        <PayPalButtons
-                                                            createOrder={(data, actions) => {
-                                                                return actions.order.create({
-                                                                    purchase_units: [
-                                                                        {
-                                                                            amount: {
-                                                                                value: total,
+                                                    {total !== 0 &&
+                                                        <PayPalScriptProvider options={{ "client-id": clientId }}>
+                                                            <PayPalButtons
+                                                                forceReRender={[name, address, phone, bill, total]}
+                                                                createOrder={(data, actions) => {
+                                                                    return actions.order.create({
+                                                                        purchase_units: [
+                                                                            {
+                                                                                amount: {
+                                                                                    value: total,
+                                                                                },
                                                                             },
-                                                                        },
-                                                                    ],
-                                                                });
-                                                            }}
-                                                            onApprove={async (data, actions) => {
-                                                                try {
-                                                                    const details = await actions.order.capture();
-                                                                    await handleSubmit(details.id);
+                                                                        ],
 
-                                                                } catch (error) {
-                                                                    toast.error("Something went wrong!!!");
-                                                                }
-                                                            }}
+                                                                    });
+                                                                }}
 
-                                                        />
-                                                    </PayPalScriptProvider>
+                                                                onApprove={async (data, actions) => {
+                                                                    try {
+                                                                        const details = await actions.order.capture();
+
+                                                                        await handleSubmit(details.id);
+
+                                                                    } catch (error) {
+
+                                                                        toast.error("Something went wrong!!!");
+                                                                        console.log(error);
+                                                                    }
+                                                                }}
+
+                                                            />
+                                                        </PayPalScriptProvider>
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
