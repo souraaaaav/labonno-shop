@@ -1,18 +1,41 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import productImage from '../assets/img/products/product-img-4.jpg';
+import { toast } from 'react-toastify';
 import Loader from '../components/Loader/Loader';
 import axios from '../helper/axios-helper.js';
 import useLoading from '../hook/customHook';
 import './SingleProduct.css';
 const Shop = () => {
     const isLoading = useLoading();
+    const dispatch = useDispatch();
+    const storeData = useSelector(state => state.auth);
     const [loading, setLoading] = useState(false);
     const [products, setProducts] = useState([]);
     const [packages, setPackages] = useState([]);
+
+    const [filter, setFilter] = useState('All');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+
     useEffect(() => {
         setLoading(true);
-        axios.get('/products/')
+
+        let apiUrl = '/products/';
+
+
+        apiUrl += `?page=${currentPage}`;
+
+
+        if (filter !== 'All') {
+            apiUrl += `&product_type=${filter}`;
+        }
+
+        if (searchTerm) {
+            apiUrl += `&search=${searchTerm}`;
+        }
+
+        axios.get(apiUrl)
             .then(response => {
                 setProducts(response.data);
             })
@@ -29,11 +52,94 @@ const Shop = () => {
             });
         setLoading(false);
 
-    }, []);
-    console.log(products, packages);
+    }, [filter, searchTerm, currentPage]);
+    const handleFilterChange = (filterValue) => {
+        setFilter(filterValue);
+        setCurrentPage(1);
+    };
+
+    const handleSearchChange = (event) => {
+        setSearchTerm(event.target.value);
+        setCurrentPage(1);
+    };
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+    };
+    function renderStars(rating) {
+        const stars = [];
+        const roundedRating = Math.round(rating * 2) / 2; // Round to nearest 0.5
+
+        for (let i = 1; i <= 5; i++) {
+            if (i <= roundedRating) {
+                // Full star
+                stars.push(<span key={i} className="fas fa-star checked"></span>);
+            } else if (i - 0.5 === roundedRating) {
+                // Half star
+                stars.push(<span key={i} className="fas fa-star-half-alt checked"></span>);
+            } else {
+                // No rating star
+                stars.push(<span key={i} className="fa-regular fa-star checked"></span>);
+            }
+        }
+
+        return stars;
+    }
+    const renderPagination = () => {
+        const totalPages = Math.ceil(products?.count / 6);
+        if (totalPages <= 1) {
+            return null;
+        }
+
+        const pageNumbers = [];
+        for (let i = 1; i <= totalPages; i++) {
+            pageNumbers.push(
+                <li key={i} >
+                    <span className={currentPage === i ? 'pagination-btn active' : 'pagination-btn'} onClick={() => handlePageChange(i)}>{i}</span>
+                </li>
+            );
+        }
+
+        return (
+            <div className="pagination-wrap">
+                <ul>
+                    <li>
+                        <button disabled={currentPage === 1} onClick={() => handlePageChange(currentPage - 1)} className={currentPage === 1 ? 'pagination-btn disabled' : 'pagination-btn '}>
+                            Prev
+                        </button>
+                    </li>
+                    {pageNumbers}
+                    <li>
+                        <button disabled={currentPage === totalPages} onClick={() => handlePageChange(currentPage + 1)} className={currentPage === totalPages ? 'pagination-btn disabled' : 'pagination-btn '}>
+                            Next
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        );
+    };
+    const addToCart = (product) => {
+        const email = storeData?.user?.email;
+        let cartData = localStorage.getItem(email);
+        if (!cartData) {
+            cartData = {};
+        } else {
+            cartData = JSON.parse(cartData);
+        }
+        if (cartData[product.id]) {
+            cartData[product.id].count += 1;
+        } else {
+            cartData[product.id] = {
+                product: product,
+                count: 1
+            };
+        }
+
+        localStorage.setItem(email, JSON.stringify(cartData));
+        toast.success(`${product.name} added to the cart`);
+    };
     return (
         <>
-            {isLoading && <Loader />}
+            {(isLoading) && <Loader />}
 
             <div class="breadcrumb-section breadcrumb-bg">
                 <div class="container">
@@ -94,87 +200,56 @@ const Shop = () => {
                         <div class="col-md-12 mb-20">
                             <div class="product-filters">
                                 <ul>
-                                    <li class="active">All</li>
-                                    <li >Breakfast</li>
-                                    <li>Lanch</li>
-                                    <li>Dinner</li>
+                                    <li className={filter === 'All' ? 'active' : ''} onClick={() => handleFilterChange('All')}>
+                                        All
+                                    </li>
+                                    <li className={filter === 'Breakfast' ? 'active' : ''} onClick={() => handleFilterChange('Breakfast')}>
+                                        Breakfast
+                                    </li>
+                                    <li className={filter === 'Lunch' ? 'active' : ''} onClick={() => handleFilterChange('Lunch')}>
+                                        Lunch
+                                    </li>
+                                    <li className={filter === 'Dinner' ? 'active' : ''} onClick={() => handleFilterChange('Dinner')}>
+                                        Dinner
+                                    </li>
+                                    <li>
+                                        <i className="fas fa-search" style={{ marginRight: '10px' }}></i>
+                                        <input
+                                            type="text"
+                                            placeholder="Search Product"
+                                            value={searchTerm}
+                                            onChange={handleSearchChange}
+                                            style={{ border: 'none', outline: 'none' }}
+                                        />
+                                    </li>
                                 </ul>
                             </div>
                         </div>
 
-                        <div class="row product-lists">
-                            {products.map(product => (
-                                <div key={product.id} className="col-lg-4 col-md-6 text-center">
-                                    <div className="single-product-item">
-                                        <div className="product-image">
-                                            <Link to={`/single-product/${product.id}`}><img src={product.image} alt={product.name} /> </Link>
-                                        </div>
-                                        <h3>{product.name}</h3>
-                                        <p className="product-price">${product.price}</p>
-                                        <div className="rating">
-                                            {/* Render the star icons based on the rating */}
-                                            {renderStars(product.rating)}
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                            <div class="col-lg-4 col-md-6 text-center">
-                                <div class="single-product-item">
-                                    <div class="product-image">
-                                        <Link to="/single-product/2"><img src={productImage} alt="" /></Link>
-                                    </div>
-                                    <h3>Rice</h3>
-                                    <div className='rating'>
-                                        <span class="fas fa-star checked"></span>
-                                        <span class="fas fa-star checked"></span>
-                                        <span class="fas fa-star checked"></span>
-                                        <span class="fas fa-star-half-alt checked"></span>
-                                        <span class="fa-regular fa-star checked"></span>
-                                    </div>
-                                    <p class="product-price"><span>per Kg</span> 50 tk </p>
-                                    <Link to="/cart" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</Link>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 col-md-6 text-center">
-                                <div class="single-product-item">
-                                    <div class="product-image">
-                                        <Link to="/single-product/2"><img src={productImage} alt="" /></Link>
-                                    </div>
-                                    <h3>Rice</h3>
-                                    <div className='rating'>
-                                        <span class="fas fa-star checked"></span>
-                                        <span class="fas fa-star checked"></span>
-                                        <span class="fas fa-star checked"></span>
-                                        <span class="fas fa-star-half-alt checked"></span>
-                                        <span class="fa-regular fa-star checked"></span>
-                                    </div>
-                                    <p class="product-price"><span></span> 50tk </p>
-                                    <Link to="/cart" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</Link>
-                                </div>
-                            </div>
-                            <div class="col-lg-4 col-md-6 text-center">
-                                <div class="single-product-item">
-                                    <div class="product-image">
-                                        <Link to="/single-product/2"><img src={productImage} alt="" /></Link>
-                                    </div>
-                                    <h3>Rice</h3>
-                                    <div className='rating'>
-                                        <span class="fas fa-star checked"></span>
-                                        <span class="fas fa-star checked"></span>
-                                        <span class="fas fa-star checked"></span>
-                                        <span class="fas fa-star-half-alt checked"></span>
-                                        <span class="fa-regular fa-star checked"></span>
-                                    </div>
-                                    <p class="product-price"><span></span> 50tk </p>
-                                    <Link to="/cart" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</Link>
-                                </div>
-                            </div>
+                        <div class="col-lg-12 col-md-12 product-lists">
+                            {loading ? <p>Loading</p> :
+                                products?.results?.map(product => (
+                                    <div key={product.id} className="col-lg-4 col-md-6 text-center">
+                                        <div className="single-product-item">
+                                            <div className="product-image">
+                                                <Link to={`/single-product/${product.id}`}><img src={product.image} alt={product.name} /> </Link>
+                                            </div>
 
+                                            <h3>{product.name}</h3>
+                                            <div className="rating">
+                                                {/* Render the star icons based on the rating */}
+                                                {renderStars(product.rating)}
+                                            </div>
+                                            <p className="product-price"><span>per Kg</span>{product.price} tk</p>
+                                            <span class="cart-btn" onClick={() => addToCart(product)}><i class="fas fa-shopping-cart"></i> Add to Cart</span>
+                                        </div>
+                                    </div>
+                                ))}
                         </div>
 
                         <div class="row w-100">
                             <div class="col-lg-12 text-center">
-                                <div class="pagination-wrap">
+                                {/* <div class="pagination-wrap">
                                     <ul>
                                         <li><a href="#">Prev</a></li>
                                         <li><a href="#">1</a></li>
@@ -182,7 +257,8 @@ const Shop = () => {
                                         <li><a href="#">3</a></li>
                                         <li><a href="#">Next</a></li>
                                     </ul>
-                                </div>
+                                </div> */}
+                                {renderPagination()}
                             </div>
                         </div>
                     </div>

@@ -47,11 +47,21 @@ class User(AbstractUser):
         return self.email
 
 class Product(models.Model):
+    BREAKFAST = 'Breakfast'
+    LUNCH = 'Lunch'
+    DINNER = 'Dinner'
+
+    PRODUCT_TYPES = [
+        (BREAKFAST, 'Breakfast'),
+        (LUNCH, 'Lunch'),
+        (DINNER, 'Dinner'),
+    ]
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
     image = models.ImageField(upload_to='product_images/')
     rating = models.FloatField(default=0.0)
+    product_type = models.CharField(max_length=20, choices=PRODUCT_TYPES, default=BREAKFAST)
 
     def __str__(self):
         return self.name
@@ -64,3 +74,24 @@ class Package(models.Model):
 
     def __str__(self):
         return self.name
+    
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    address = models.TextField()
+    phone = models.CharField(max_length=20)
+    bill = models.TextField()
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_id = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Order #{self.pk} - {self.user.username}"
+
+class OrderProduct(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name} - Order #{self.order.pk}"

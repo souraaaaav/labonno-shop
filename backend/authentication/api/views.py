@@ -1,5 +1,5 @@
 
-from authentication.models import ( User,Product, Package )
+from authentication.models import ( User,Product, Package, Order, OrderProduct )
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import utils
-from .serializers import LoginSerializer, UserSerializer,ProductSerializer, PackageSerializer
+from .serializers import LoginSerializer, UserSerializer,ProductSerializer, PackageSerializer, OrderSerializer
 
 class passwordChangeRequestView(generics.GenericAPIView):
 
@@ -156,10 +156,82 @@ class continuousVerificationView(generics.RetrieveAPIView):
         return self.request.user
 
 
-class ProductList(generics.ListAPIView):
+from rest_framework.generics import ListAPIView
+from rest_framework.pagination import PageNumberPagination
+
+class ProductListPagination(PageNumberPagination):
+    page_size = 6  # Adjust as needed
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+class ProductList(ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    pagination_class = ProductListPagination
+
+    def get_queryset(self):
+        queryset = Product.objects.all()
+
+        product_type = self.request.query_params.get('product_type', None)
+        if product_type is not None and product_type != 'All':
+            queryset = queryset.filter(product_type=product_type)
+
+        search_term = self.request.query_params.get('search', None)
+        if search_term is not None:
+            queryset = queryset.filter(name__icontains=search_term)
+
+        return queryset
+from rest_framework.generics import RetrieveAPIView
+
+class ProductDetail(RetrieveAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
 class PackageList(generics.ListAPIView):
     queryset = Package.objects.all()
     serializer_class = PackageSerializer
+
+from rest_framework.decorators import api_view,permission_classes
+from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_order(request):
+    try:
+        user = request.user
+        data = request.data
+
+        name = data.get('name')
+        address = data.get('address')
+        phone = data.get('phone')
+        bill = data.get('bill')
+        payment_id = data.get('payment_id')
+        cart_items = data.get('cart_items', [])  # Assuming cart_items is a list of dictionaries containing product_id and quantity
+
+        total_price = 0
+        order = Order.objects.create(
+            user=user,
+            name=name,
+            address=address,
+            phone=phone,
+            bill=bill,
+            payment_id=payment_id,
+            total_price=total_price
+        )
+
+        for item in cart_items:
+            product_id = item['product_id']
+            quantity = item['quantity']
+            product_instance = get_object_or_404(Product, id=product_id)
+            order_product = OrderProduct.objects.create(
+                    order=order,
+                    product=product_instance,
+                    quantity=quantity
+                )
+
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

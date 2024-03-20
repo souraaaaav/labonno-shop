@@ -96,6 +96,16 @@ export const authReducer = (state = initialState, action) => {
                 ...state,
                 isLoading: false
             };
+        case actionTypes.PRODUCT_ADD:
+            return {
+                ...state,
+                totalCart: state.totalCart + 1,
+            };
+        case actionTypes.PRODUCT_REMOVE:
+            return {
+                ...state,
+                totalCart: state.totalCart - 1,
+            };
 
         default:
             return state;

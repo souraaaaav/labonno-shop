@@ -1,17 +1,89 @@
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from "react-redux";
 import { useNavigate } from 'react-router-dom';
+import { toast } from "react-toastify";
 import Loader from '../components/Loader/Loader';
+import axios from '../helper/axios-helper.js';
 import useLoading from '../hook/customHook';
 
 const Checkout = () => {
 
     const isLoading = useLoading();
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const storeData = useSelector(state => state.auth);
+    const [cartItems, setCartItems] = useState([]);
+    const [formData, setFormData] = useState({
+        name: '',
+        address: '',
+        phone: '',
+        bill: ''
+    });
 
+
+    useEffect(() => {
+        if (storeData && storeData?.user) {
+            const cartData = localStorage.getItem(storeData.user.email);
+
+            if (cartData) {
+                const parsedCart = JSON.parse(cartData);
+                const items = Object.values(parsedCart);
+                setCartItems(items);
+            }
+        }
+    }, [storeData]);
+    const subtotal = cartItems.reduce((total, item) => {
+        return total + item.count * parseFloat(item.product.price);
+    }, 0);
+
+    const shippingCost = 45;
+
+    const total = subtotal + shippingCost;
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    };
+    console.log(formData);
+
+    const handleSubmit = async (payment_id) => {
+        const orderData = JSON.stringify({
+            name: formData.name,
+            address: formData.address,
+            phone: formData.phone,
+            bill: formData.bill,
+            payment_id: payment_id,
+            total_price: total,
+            cart_items: cartItems.map(item => ({
+                product_id: item.product.id,
+                quantity: item.count
+            }))
+        });
+        console.log('order', orderData);
+        const config = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Token ${storeData.token}`
+            }
+        };
+        axios.post('/create_order/', orderData, config)
+            .then((res) => {
+                if (res.status === 200) {
+                    toast.success("Successfully placed the order!!!");
+                    localStorage.removeItem(storeData.user.email);
+                    navigate('/orders');
+                }
+            })
+            .catch(err => {
+                toast.error("Something went wrong!!!");
+            });
+    };
     return (
         <>
-            {isLoading && <Loader />}
+            {(isLoading || loading) && <Loader />}
 
             <div class="breadcrumb-section breadcrumb-bg">
                 <div class="container">
@@ -36,7 +108,7 @@ const Checkout = () => {
                                             <h5 class="mb-0">
                                                 <button class="btn btn-link" type="button" data-toggle="collapse"
                                                     data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                                    Billing Address
+                                                    Billing & Shipping Address
                                                 </button>
                                             </h5>
                                         </div>
@@ -45,37 +117,47 @@ const Checkout = () => {
                                             data-parent="#accordionExample">
                                             <div class="card-body">
                                                 <div class="billing-address-form">
-                                                    <form action="index.html">
-                                                        <p><input type="text" placeholder="Name" /></p>
-                                                        <p><input type="email" placeholder="Email" /></p>
-                                                        <p><input type="text" placeholder="Address" /></p>
-                                                        <p><input type="tel" placeholder="Phone" /></p>
-                                                        <p><textarea name="bill" id="bill" cols="30" rows="10"
-                                                            placeholder="Say Something"></textarea></p>
+                                                    <form>
+                                                        <p><input
+                                                            type="text"
+                                                            name="name"
+                                                            placeholder="Name"
+                                                            value={formData.name}
+                                                            onChange={handleChange}
+                                                            required
+                                                        /></p>
+                                                        <p><input
+                                                            type="text"
+                                                            name="address"
+                                                            placeholder="Address"
+                                                            value={formData.address}
+                                                            onChange={handleChange}
+                                                            required
+                                                        /></p>
+                                                        <p><input
+                                                            type="tel"
+                                                            name="phone"
+                                                            placeholder="Phone"
+                                                            value={formData.phone}
+                                                            onChange={handleChange}
+                                                            required
+                                                        /></p>
+                                                        <p><textarea
+                                                            name="bill"
+                                                            id="bill"
+                                                            cols="30"
+                                                            rows="10"
+                                                            placeholder="Say Something"
+                                                            value={formData.bill}
+                                                            onChange={handleChange}
+                                                        ></textarea></p>
+
                                                     </form>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="card single-accordion">
-                                        <div class="card-header" id="headingTwo">
-                                            <h5 class="mb-0">
-                                                <button class="btn btn-link collapsed" type="button" data-toggle="collapse"
-                                                    data-target="#collapseTwo" aria-expanded="false"
-                                                    aria-controls="collapseTwo">
-                                                    Shipping Address
-                                                </button>
-                                            </h5>
-                                        </div>
-                                        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo"
-                                            data-parent="#accordionExample">
-                                            <div class="card-body">
-                                                <div class="shipping-address-form">
-                                                    <p>Your shipping address form is here.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+
                                     <div class="card single-accordion">
                                         <div class="card-header" id="headingThree">
                                             <h5 class="mb-0">
@@ -98,7 +180,7 @@ const Checkout = () => {
                                                                     purchase_units: [
                                                                         {
                                                                             amount: {
-                                                                                value: 20,
+                                                                                value: total,
                                                                             },
                                                                         },
                                                                     ],
@@ -107,17 +189,13 @@ const Checkout = () => {
                                                             onApprove={async (data, actions) => {
                                                                 try {
                                                                     const details = await actions.order.capture();
-                                                                    console.log(details);
-                                                                    window.location.href = '/orders';
-                                                                } catch (error) {
-                                                                    console.error("Error capturing PayPal payment:", error);
-                                                                    window.location.href = '/orders';
+                                                                    await handleSubmit(details.id);
 
+                                                                } catch (error) {
+                                                                    toast.error("Something went wrong!!!");
                                                                 }
                                                             }}
-                                                            onCancel={() => {
-                                                                window.location.href = '/orders';
-                                                            }}
+
                                                         />
                                                     </PayPalScriptProvider>
                                                 </div>
@@ -134,37 +212,37 @@ const Checkout = () => {
                                 <table class="order-details">
                                     <thead>
                                         <tr>
-                                            <th>Your order Details</th>
+                                            <th>Product</th>
+                                            <th>Count</th>
                                             <th>Price</th>
                                         </tr>
                                     </thead>
                                     <tbody class="order-details-body">
+                                        {Object.keys(cartItems).map((key) => {
+                                            const item = cartItems[key];
+                                            return (
+                                                <tr key={key} className="order-details-row">
+                                                    <td>{item.product.name}</td>
+                                                    <td style={{ textAlign: 'center' }}>{item.count}</td>
+                                                    <td>{(item.count * parseFloat(item.product.price)).toFixed(2)} tk</td>
+                                                </tr>
+                                            );
+                                        })}
 
-                                        <tr>
-                                            <td>Chicken Curry</td>
-                                            <td>85 tk</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Dal</td>
-                                            <td>20 tk</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Doichira</td>
-                                            <td>35 tk</td>
-                                        </tr>
                                     </tbody>
                                     <tbody class="checkout-details">
-                                        <tr>
-                                            <td>Subtotal</td>
-                                            <td>140 tk</td>
-                                        </tr>
+
                                         <tr>
                                             <td>Shipping</td>
+                                            <td></td>
+
                                             <td>45 tk</td>
                                         </tr>
                                         <tr>
-                                            <td>Total</td>
-                                            <td>185 tk</td>
+                                            <td><strong>Total: </strong></td>
+                                            <td></td>
+
+                                            <td>{total.toFixed(2)} tk</td>
                                         </tr>
                                     </tbody>
                                 </table>

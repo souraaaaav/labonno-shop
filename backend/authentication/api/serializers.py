@@ -1,5 +1,5 @@
 
-from authentication.models import User,Product, Package
+from authentication.models import User,Product, Package,Order
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
@@ -57,3 +57,8 @@ class PackageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Package
         fields = ['id', 'name', 'products','image','description']
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at']

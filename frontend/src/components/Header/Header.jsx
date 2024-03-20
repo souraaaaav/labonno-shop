@@ -7,8 +7,8 @@ import './Header.css';
 const Header = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
     const [isScrolled, setIsScrolled] = useState(false);
+    const cartData = useSelector(state => state.cart);
     const storeData = useSelector(state => state.auth);
 
     useEffect(() => {
@@ -24,6 +24,7 @@ const Header = () => {
             window.removeEventListener('scroll', handleScroll);
         };
     }, []);
+
     const menuToggle = () => {
         console.log('clicked');
         const toggleMenu = document.querySelector(".menu");
@@ -77,9 +78,12 @@ const Header = () => {
                                         </li>
                                         {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified) ?
                                             <li className='last-child'>
-                                                <div class="header-icons">
-                                                    <Link class="shopping-cart" to="/cart">Cart <i class="fas fa-shopping-cart"></i> </Link>
+                                                <div class="header-icons" style={{ position: 'relative' }}>
+                                                    <Link class="shopping-cart" to="/cart">Cart <i class="fa" style={{ fontSize: '24px' }}>&#xf07a;</i>
+
+                                                    </Link>
                                                 </div>
+
                                             </li>
                                             : null}
                                     </ul>

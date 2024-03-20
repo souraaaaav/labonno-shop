@@ -1,10 +1,51 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import productImage from '../assets/img/products/product-img-1.png';
 import Loader from '../components/Loader/Loader';
 import useLoading from '../hook/customHook';
 const Cart = () => {
     const isLoading = useLoading();
+    const storeData = useSelector(state => state.auth);
+    const [cartItems, setCartItems] = useState([]);
+    useEffect(() => {
+        if (storeData && storeData?.user) {
+            const cartData = localStorage.getItem(storeData.user.email);
+
+            if (cartData) {
+                const parsedCart = JSON.parse(cartData);
+                const items = Object.values(parsedCart);
+                setCartItems(items);
+            }
+        }
+    }, [storeData]);
+    const subtotal = cartItems.reduce((total, item) => {
+        return total + item.count * parseFloat(item.product.price);
+    }, 0);
+
+    const shippingCost = 45;
+
+    const total = subtotal + shippingCost;
+    const handleRemoveItem = (id) => {
+        const cartData = localStorage.getItem(storeData.user.email);
+        const parsedCart = JSON.parse(cartData);
+        delete parsedCart[id];
+
+        localStorage.setItem(storeData.user.email, JSON.stringify(parsedCart));
+        setCartItems(Object.values(parsedCart));
+    };
+    const handleChangeQuantity = (id, newCount) => {
+        if (!isNaN(newCount) && newCount > 0) {
+            const cartData = localStorage.getItem(storeData.user.email);
+            const parsedCart = JSON.parse(cartData);
+            parsedCart[id].count = newCount;
+
+            // Update the localStorage
+            localStorage.setItem(storeData.user.email, JSON.stringify(parsedCart));
+
+            // Update the cartItems state
+            setCartItems(Object.values(parsedCart));
+        }
+    };
     return (
         <>
             {isLoading && <Loader />}
@@ -38,24 +79,29 @@ const Cart = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr class="table-body-row">
-                                            <td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>
-                                            <td class="product-image"><img src={productImage} alt="" />
-                                            </td>
-                                            <td class="product-name">Chicken Curry</td>
-                                            <td class="product-price">85 tk</td>
-                                            <td class="product-quantity"><input type="number" placeholder="0" /></td>
-                                            <td class="product-total">1</td>
-                                        </tr>
-                                        <tr class="table-body-row">
-                                            <td class="product-remove"><a href="#"><i class="far fa-window-close"></i></a></td>
-                                            <td class="product-image"><img src={productImage} alt="" />
-                                            </td>
-                                            <td class="product-name">Dul</td>
-                                            <td class="product-price">70 tk</td>
-                                            <td class="product-quantity"><input type="number" placeholder="0" /></td>
-                                            <td class="product-total">1</td>
-                                        </tr>
+                                        {cartItems.map((item, index) => (
+                                            <tr className="table-body-row" key={index}>
+                                                <td className="product-remove">
+                                                    <span onClick={() => handleRemoveItem(item.product.id)} ><i className="far fa-window-close"></i></span>
+                                                </td>
+                                                <td className="product-image">
+                                                    <img src={item.product.image} alt={item.product.name} />
+                                                </td>
+                                                <td className="product-name">{item.product.name}</td>
+                                                <td className="product-price">{item.product.price} tk</td>
+                                                <td className="product-quantity">
+                                                    <input
+                                                        type="number"
+                                                        placeholder="0"
+                                                        value={item.count}
+                                                        min={1}
+                                                        max={10}
+                                                        onChange={(e) => handleChangeQuantity(item.product.id, parseInt(e.target.value, 10))}
+                                                    />
+                                                </td>
+                                                <td className="product-total">{(item.count * parseFloat(item.product.price)).toFixed(2)} tk</td>
+                                            </tr>
+                                        ))}
 
                                     </tbody>
 
@@ -65,25 +111,25 @@ const Cart = () => {
 
                         <div class="col-lg-4">
                             <div class="total-section">
-                                <table class="total-table">
-                                    <thead class="total-table-head">
-                                        <tr class="table-total-row">
+                                <table className="total-table">
+                                    <thead className="total-table-head">
+                                        <tr className="table-total-row">
                                             <th>Total</th>
                                             <th>Price</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr class="total-data">
+                                        <tr className="total-data">
                                             <td><strong>Subtotal: </strong></td>
-                                            <td>155</td>
+                                            <td>{subtotal.toFixed(2)} tk</td>
                                         </tr>
-                                        <tr class="total-data">
+                                        <tr className="total-data">
                                             <td><strong>Shipping: </strong></td>
-                                            <td>45 tk</td>
+                                            <td>{shippingCost} tk</td>
                                         </tr>
-                                        <tr class="total-data">
+                                        <tr className="total-data">
                                             <td><strong>Total: </strong></td>
-                                            <td>200 tk</td>
+                                            <td>{total.toFixed(2)} tk</td>
                                         </tr>
                                     </tbody>
                                 </table>

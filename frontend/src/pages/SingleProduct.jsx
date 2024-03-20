@@ -1,13 +1,69 @@
-import { Link } from 'react-router-dom';
-import avatar from '../assets/img/avaters/avatar1.png';
-import avatar2 from '../assets/img/avaters/avatar2.png';
-import productImage from '../assets/img/products/product-img-1.png';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import Loader from '../components/Loader/Loader';
+import axios from '../helper/axios-helper';
 import useLoading from '../hook/customHook';
 import './SingleProduct.css';
 const SingleProduct = () => {
+    const { id } = useParams();
+    const [product, setProduct] = useState(null);
     const isLoading = useLoading();
+    const storeData = useSelector(state => state.auth);
 
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const response = await axios.get(`/products/${id}/`);
+                setProduct(response.data);
+                console.log(response.data);
+            } catch (error) {
+                console.error('Error fetching product:', error);
+            }
+        };
+
+        fetchProduct();
+    }, [id]);
+    function renderStars(rating) {
+        const stars = [];
+        const roundedRating = Math.round(rating * 2) / 2; // Round to nearest 0.5
+
+        for (let i = 1; i <= 5; i++) {
+            if (i <= roundedRating) {
+                // Full star
+                stars.push(<span key={i} className="fas fa-star checked"></span>);
+            } else if (i - 0.5 === roundedRating) {
+                // Half star
+                stars.push(<span key={i} className="fas fa-star-half-alt checked"></span>);
+            } else {
+                // No rating star
+                stars.push(<span key={i} className="fa-regular fa-star checked"></span>);
+            }
+        }
+
+        return stars;
+    }
+    const addToCart = (product) => {
+        const email = storeData?.user?.email;
+        let cartData = localStorage.getItem(email);
+        if (!cartData) {
+            cartData = {};
+        } else {
+            cartData = JSON.parse(cartData);
+        }
+        if (cartData[product.id]) {
+            cartData[product.id].count += 1;
+        } else {
+            cartData[product.id] = {
+                product: product,
+                count: 1
+            };
+        }
+
+        localStorage.setItem(email, JSON.stringify(cartData));
+        toast.success(`${product.name} added to the cart`);
+    };
     return (
 
         <>
@@ -27,34 +83,32 @@ const SingleProduct = () => {
             </div>
             <div class="single-product mt-150 mb-150">
                 <div class="container">
-                    <div class="row">
-                        <div class="col-md-5">
-                            <div class="single-product-img">
-                                <img src={productImage} alt="" />
-                            </div>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="single-product-content">
-                                <h3>Chicken curry</h3>
-                                <div className='rating'>
-                                    <span class="fas fa-star checked"></span>
-                                    <span class="fas fa-star checked"></span>
-                                    <span class="fas fa-star checked"></span>
-                                    <span class="fas fa-star-half-alt checked"></span>
-                                    <span class="fa-regular fa-star checked"></span>
+                    {product &&
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="single-product-img">
+                                    <img src={product.image} alt="" />
                                 </div>
-                                <p class="single-product-pricing"><span></span> 85tk</p>
-                                <p>Our delicious curry specially crafted for large gatherings.Our curry is sure to satisfy every palate.
-                                </p>
-                                <div class="single-product-form">
-                                    <Link to="/cart" class="cart-btn"> <i class="fas fa-shopping-cart"></i> Add to cart</Link>
+                            </div>
+                            <div class="col-md-7">
+                                <div class="single-product-content">
+                                    <h3>{product.name}</h3>
+                                    <div className='rating'>
+                                        {renderStars(product.rating)}
+                                    </div>
+                                    <p class="single-product-pricing"><span></span> {product.price}</p>
+                                    <p>{product.description}
+                                    </p>
+                                    <div class="single-product-form">
+                                        <span onClick={() => addToCart(product)} class="cart-btn"> <i class="fas fa-shopping-cart"></i> Add to cart</span>
+
+                                    </div>
 
                                 </div>
-
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
+                    }
+                    {/* <div class="row">
                         <div class="comments-list-wrap">
                             <h3 class="comment-count-title">3 Comments</h3>
                             <div class="comment-list">
@@ -94,7 +148,7 @@ const SingleProduct = () => {
                                 <p><input type="submit" value="Submit" /></p>
                             </form>
                         </div>
-                    </div>
+                    </div> */}
 
                 </div>
             </div>
