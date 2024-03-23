@@ -118,3 +118,22 @@ class PackageOrderProduct(models.Model):
     def __str__(self):
         return f"{self.quantity} x {self.product.name} - Package Order #{self.package_order.pk}"
 
+
+class ProductComment(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.user.name} on {self.product.name}"
+
+class ProductRating(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_rating')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.user.name} on {self.product.name}"
+

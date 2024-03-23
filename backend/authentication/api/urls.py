@@ -14,6 +14,13 @@ urlpatterns = [
 
     path('products/', views.ProductList.as_view(), name='product-list'),
     path('products/<int:pk>/', views.ProductDetail.as_view(), name='product-detail'),
+    path('products/<int:product_id>/comments/', views.ProductCommentList.as_view(), name='product_comment_list'),
+    path('products/<int:product_id>/can-comment/', views.CanComment.as_view(), name='can_comment'),
+    path('products/<int:product_id>/create-product-comment/', views.create_product_comment, name='create_product_comment'),
+    
+    path('products/<int:product_id>/can-rate/', views.CheckUserCanRate.as_view(), name='check_user_can_rate'),
+    path('products/<int:product_id>/rate/', views.ProductRatingView.as_view(), name='product_rating'),
+    path('products/<int:product_id>/get-rating/', views.GetProductRating.as_view(), name='get_product_rating'),
 
     path('packages/', views.PackageList.as_view(), name='package-list'),
     path('packages/<int:pk>/', views.PackageDetail.as_view(), name='package-detail'),

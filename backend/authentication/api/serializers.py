@@ -1,5 +1,4 @@
-
-from authentication.models import User,Product, Package,Order, PackageOrder, OrderProduct, PackageOrderProduct
+from authentication.models import ProductRating,User,Product, Package,Order, PackageOrder, OrderProduct, PackageOrderProduct, ProductComment
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 
@@ -87,3 +86,15 @@ class PackageOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = PackageOrder
         fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at', 'package', 'package_order_products']
+
+
+class ProductCommentSerializer(serializers.ModelSerializer):
+    user=UserSerializer()
+    class Meta:
+        model = ProductComment
+        fields = ['id', 'product', 'user', 'comment', 'created_at']
+        
+class ProductRatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductRating
+        fields = ['id', 'product', 'user', 'rating', 'created_at']
