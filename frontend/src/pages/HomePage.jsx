@@ -21,7 +21,7 @@ const HomePage = () => {
                                     <h1>Delicious Food Items</h1>
                                     <div class="hero-btns">
                                         <Link to="/login" class="boxed-btn">Log In</Link>
-                                        <Link to="/registration" class="bordered-btn">Create Account</Link>
+                                        <Link to="/select-registration-type" class="bordered-btn">Create Account</Link>
                                     </div>
                                 </div>
                             </div>

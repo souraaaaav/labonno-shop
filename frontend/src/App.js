@@ -27,6 +27,10 @@ import Login from "./pages/Login";
 import Orders from "./pages/Orders";
 import PackageCart from "./pages/PackageCart";
 import Registration from "./pages/Registration";
+import RegistrationDeliveryMan from "./pages/RegistrationDeliveryMan";
+import RegistrationType from "./pages/RegistrationType";
+import SellerPackageDashboard from "./pages/SellerPackageDashboard";
+import SellerProductDashboard from "./pages/SellerProductDashboard";
 import Shop from "./pages/Shop";
 import SinglePackage from "./pages/SinglePackage";
 import SinglePackageBuild from "./pages/SinglePackageBuild";
@@ -54,11 +58,14 @@ function App({ check_continuous_auth }) {
         <Route exact path='/checkout' element={<Checkout />} />
         <Route exact path='/cart' element={<Cart />} />
         <Route exact path='/package-cart/:id' element={<PackageCart />} />
-
+        <Route exact path='/seller-product-dashboard' element={<SellerProductDashboard />} />
+        <Route exact path='/seller-package-dashboard' element={<SellerPackageDashboard />} />
         <Route exact path='/shop' element={<Shop />} />
         <Route exact path='/forget-password-confirm' element={<ForgetPasswordConfirm />} />
         <Route exact path='/forget-password-start' element={<ForgetPasswordStart />} />
+        <Route exact path='/registration-delivery-man' element={<RegistrationDeliveryMan />} />
         <Route exact path='/registration' element={<Registration />} />
+        <Route exact path='/select-registration-type' element={<RegistrationType />} />
         <Route exact path='/login' element={<Login />} />
         <Route exact path='/' element={<HomePage />} />
       </Routes>

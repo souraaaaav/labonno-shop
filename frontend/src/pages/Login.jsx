@@ -31,9 +31,13 @@ const Login = () => {
         dispatch(login(email, password));
     };
 
-    if (storeData.isAuthenticated && storeData.user && storeData.user.is_verified) {
+    if (storeData.isAuthenticated && storeData.user && storeData.user.is_verified && storeData.user.is_customer) {
         toast.success("login success");
         return <Navigate to="/shop" />;
+    }
+
+    if (storeData.isAuthenticated && storeData.user && storeData.user.is_verified) {
+        return <Navigate to="/seller-dashboard" />;
     }
     return (
         <>

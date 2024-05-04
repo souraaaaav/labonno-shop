@@ -29,7 +29,8 @@ admin.site.site_title = 'Labonno Admin Panel'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("api/", include("authentication.api.urls")),
+    path("api/", include("authentication.api.urls"))
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

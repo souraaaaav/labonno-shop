@@ -72,9 +72,13 @@ class userSignupView(generics.GenericAPIView):
             phone = request.data['phone']
             password=request.data['password']
             profile_pic = request.FILES.get('profile_pic')
-            print(request.FILES,profile_pic)
+            user_type = request.data['user_type']
             user=User.objects.create(email=email,name=name,phone=phone,profile_pic=profile_pic)
             user.set_password(password)
+            if user_type == 'customer':
+                user.is_customer = True
+            if user_type == 'delivery_man':
+                user.is_delivery_man = True
             user.save()
 
             user_data = User.objects.get(email=email)
@@ -320,8 +324,8 @@ def create_package_order(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST) 
+
 class UserOrderListView(generics.ListAPIView):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
@@ -349,3 +353,44 @@ class PackageOrderListAPIView(generics.ListAPIView):
             queryset = queryset.filter(payment_id__icontains=payment_id)
 
         return queryset
+
+from rest_framework import viewsets
+class ProductViewSet(generics.ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+@api_view(['POST'])
+def create_product(request):
+    try:
+        name=request.data['name']
+        price=request.data['price']
+        description=request.data['description']
+        product_type=request.data['productType']
+        image=request.FILES['image']
+        Product.objects.create(name=name,price=price,description=description,product_type=product_type,image=image)
+        return Response({'message':'ok'}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)  
+    
+@api_view(['POST'])
+def update_product(request):
+    try:
+        id=request.data['id']
+        name=request.data['name']
+        price=request.data['price']
+        description=request.data['description']
+        product_type=request.data['productType']
+        image = request.FILES.get('image', None)
+        product = Product.objects.get(id=id)
+        product.name=name
+        product.price=price
+        product.description = description
+        product.product_type =product_type
+        if image:
+            product.image=image
+        product.save()
+        return Response({'message':'ok'}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)  

@@ -6,7 +6,7 @@ import Loader from '../components/Loader/Loader';
 import axios from "../helper/axios-helper";
 import useLoading from '../hook/customHook';
 
-const Registration = () => {
+const RegistrationDeliveryMan = () => {
     const isLoading = useLoading();
     const [openEmail, setOpenEmail] = useState(false);
     const profileImageInputRef = useRef(null);
@@ -57,7 +57,7 @@ const Registration = () => {
             regformData.append('email', formData.email);
             regformData.append('phone', formData.phone);
             regformData.append('password', formData.password);
-            regformData.append('user_type', 'customer');
+            regformData.append('user_type', 'delivery_man');
             if (formData.profilePic) {
                 regformData.append('profile_pic', formData.profilePic);
             }
@@ -92,7 +92,7 @@ const Registration = () => {
                         <div class="col-lg-8 offset-lg-2 text-center">
                             <div class="breadcrumb-text">
                                 <p>Join With us </p>
-                                <h1>Registration as Customer</h1>
+                                <h1>Registration as Delivery Man</h1>
                             </div>
                         </div>
                     </div>
@@ -123,7 +123,9 @@ const Registration = () => {
                 </div> :
                     <div class="container">
                         <div class="row">
+                            <div className="col-lg-3">
 
+                            </div>
                             <div class="col-lg-9 mx-auto text-center">
                                 <div class="checkout-accordion-wrap">
                                     <div class="accordion" id="accordionExample">
@@ -132,7 +134,7 @@ const Registration = () => {
                                                 <h5 class="mb-0">
                                                     <button class="btn btn-link" type="button" data-toggle="collapse"
                                                         data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                                        Enter Details For Registration as Customer
+                                                        Enter Details For Registration as Delivery Man
                                                     </button>
                                                 </h5>
                                             </div>
@@ -266,4 +268,4 @@ const Registration = () => {
     );
 };
 
-export default Registration;
+export default RegistrationDeliveryMan;

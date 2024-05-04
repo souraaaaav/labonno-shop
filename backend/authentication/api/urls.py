@@ -24,5 +24,10 @@ urlpatterns = [
     path('orders/', views.UserOrderListView.as_view(), name='user_orders'),
     path('package-orders/', views.PackageOrderListAPIView.as_view(), name='package_order_list'),
 
+    path('products-for-seller/', views.ProductViewSet.as_view(), name='product-list-for-seller'),
+    path('create-product/', views.create_product, name='product-create'),
+    path('update-product/', views.update_product, name='product-update'),
+
+
 ]
 
