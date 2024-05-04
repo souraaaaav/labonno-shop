@@ -1,5 +1,5 @@
 
-from authentication.models import ( User,Product, Package, Order, OrderProduct, PackageOrder, PackageOrderProduct )
+from authentication.models import ( ProductRating,User,Product, Package, Order, OrderProduct, PackageOrder, PackageOrderProduct )
 from django.conf import settings
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import send_mail
@@ -14,7 +14,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from . import utils
-from .serializers import LoginSerializer, UserSerializer,ProductSerializer, PackageSerializer, OrderSerializer, PackageOrderSerializer
+from .serializers import ProductRatingSerializer,LoginSerializer, UserSerializer,ProductSerializer, PackageSerializer, OrderSerializer, PackageOrderSerializer, ProductCommentSerializer,ProductComment
 
 class passwordChangeRequestView(generics.GenericAPIView):
 
@@ -324,7 +324,7 @@ def create_package_order(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST) 
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserOrderListView(generics.ListAPIView):
     serializer_class = OrderSerializer
@@ -354,6 +354,101 @@ class PackageOrderListAPIView(generics.ListAPIView):
 
         return queryset
 
+
+
+@api_view(['POST'])
+def create_product_comment(request,product_id):
+    try:
+        user=request.user
+        comment = request.data['comment']
+        product=Product.objects.get(id=product_id)
+        ProductComment.objects.create(user=user,comment=comment,product=product)
+
+        return Response({"data":"ok"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class ProductCommentList(generics.ListAPIView):
+    serializer_class = ProductCommentSerializer
+
+    def get_queryset(self):
+        product_id = self.kwargs['product_id']
+        return ProductComment.objects.filter(product_id=product_id)
+
+class CanComment(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, product_id):
+        user = request.user
+        has_ordered = Order.objects.filter(user=user, order_products__product_id=product_id).exists()
+        return Response({'can_comment': has_ordered})
+
+class CheckUserCanRate(APIView):
+    """
+    Check if the user can rate the product
+    """
+    def get(self, request, product_id):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({"can_rate": False}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Check if the user has already rated the product
+        print('rating',ProductRating.objects.filter(product_id=product_id, user=user).count())
+        already_rated = ProductRating.objects.filter(product_id=product_id, user=user).exists()
+
+        return Response({"can_rate": not already_rated})
+
+class ProductRatingView(APIView):
+    """
+    Handle product ratings
+    """
+    def post(self, request, product_id):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        data = {
+            'product': product_id,
+            'user': user.id,
+            'rating': request.data.get('rating'),
+        }
+
+        serializer = ProductRatingSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+
+            # Calculate and update product rating
+            product = Product.objects.get(pk=product_id)
+            product_ratings = ProductRating.objects.filter(product=product)
+            total_ratings = product_ratings.count()
+            total_rating_sum = sum([rating.rating for rating in product_ratings])
+
+            if total_ratings > 0:
+                new_rating = total_rating_sum / total_ratings
+                product.rating = new_rating
+                product.save()
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GetProductRating(APIView):
+    """
+    Get the rating of a product given by a specific user
+    """
+    def get(self, request, product_id):
+        user = request.user
+        if not user.is_authenticated:
+            return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            product_rating = ProductRating.objects.get(product_id=product_id, user=user)
+            serializer = ProductRatingSerializer(product_rating)
+            return Response(serializer.data)
+        except ProductRating.DoesNotExist:
+            return Response({"detail": "Rating does not exist for this product and user."}, status=status.HTTP_404_NOT_FOUND)
+
 from rest_framework import viewsets
 class ProductViewSet(generics.ListAPIView):
     queryset = Product.objects.all()
@@ -371,8 +466,8 @@ def create_product(request):
         return Response({'message':'ok'}, status=status.HTTP_200_OK)
 
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)  
-    
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['POST'])
 def update_product(request):
     try:
@@ -393,4 +488,4 @@ def update_product(request):
         return Response({'message':'ok'}, status=status.HTTP_200_OK)
 
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)  
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)

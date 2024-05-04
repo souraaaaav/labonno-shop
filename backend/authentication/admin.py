@@ -10,6 +10,10 @@ admin.site.register(models.Order)
 admin.site.register(models.OrderProduct)
 admin.site.register(models.PackageOrder)
 admin.site.register(models.PackageOrderProduct)
+admin.site.register(models.ProductComment)
+admin.site.register(models.ProductRating)
+
+
 
 
 
