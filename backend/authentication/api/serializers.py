@@ -72,12 +72,26 @@ class PackageSerializer(serializers.ModelSerializer):
         model = Package
         fields = ['id', 'name', 'products','image','description']
 
+class PackageCreateSerializer(serializers.ModelSerializer):
+    products = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(), many=True)
+
+    class Meta:
+        model = Package
+        fields = ['id', 'name', 'products', 'image', 'description']
+
+    def create(self, validated_data):
+        products_data = validated_data.pop('products')
+        package = Package.objects.create(**validated_data)
+        for product in products_data:
+            package.products.add(product)
+        return package
+
 class OrderSerializer(serializers.ModelSerializer):
     order_products = OrderProductSerializer(many=True, read_only=True)
 
     class Meta:
         model = Order
-        fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at','order_products']
+        fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at','order_products','delivery_user','status']
 
 class PackageOrderSerializer(serializers.ModelSerializer):
     package_order_products = PackageOrderProductSerializer(many=True, read_only=True)
@@ -85,7 +99,7 @@ class PackageOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PackageOrder
-        fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at', 'package', 'package_order_products']
+        fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at', 'package', 'package_order_products','delivery_user','status']
 
 
 class ProductCommentSerializer(serializers.ModelSerializer):

@@ -57,7 +57,7 @@ const Header = () => {
                                             <NavLink exact to="/"
                                                 className={({ isActive }) => isActive ? "current-list-item" : ""}>Home</NavLink>
                                         </li>
-                                        {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified) ?
+                                        {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified && storeData.user.is_customer) ?
                                             <>
                                                 <li>
                                                     <NavLink exact to="/shop"
@@ -65,6 +65,22 @@ const Header = () => {
                                                 </li><li>
                                                     <NavLink exact to="/orders"
                                                         className={({ isActive }) => isActive ? "current-list-item" : ""}>My Orders</NavLink>
+                                                </li>
+                                            </> : null
+                                        }
+                                        {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified && storeData.user.is_delivery_man)?
+                                        <>
+                                                <li>
+                                                    <NavLink exact to="/delivery-dashboard"
+                                                        className={({ isActive }) => isActive ? "current-list-item" : ""}>Dashboard</NavLink>
+                                                </li>
+                                            </> : null
+                                        }
+                                        {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified && !(storeData.user.is_customer || storeData.user.is_delivery_man))?
+                                        <>
+                                                <li>
+                                                    <NavLink exact to="/seller-dashboard"
+                                                        className={({ isActive }) => isActive ? "current-list-item" : ""}>Dashboard</NavLink>
                                                 </li>
                                             </> : null
                                         }
@@ -76,7 +92,7 @@ const Header = () => {
                                             <NavLink exact to="/contact"
                                                 className={({ isActive }) => isActive ? "current-list-item" : ""}>Contact us</NavLink>
                                         </li>
-                                        {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified) ?
+                                        {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified && storeData.user.is_customer) ?
                                             <li className='last-child'>
                                                 <div class="header-icons" style={{ position: 'relative' }}>
                                                     <Link class="shopping-cart" to="/cart">Cart <i class="fa" style={{ fontSize: '24px' }}>&#xf07a;</i>

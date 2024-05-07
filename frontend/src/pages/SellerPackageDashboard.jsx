@@ -1,15 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Loader from '../components/Loader/Loader';
 import useLoading from '../hook/customHook';
 
-import { Modal } from '@material-ui/core';
+import {Modal} from '@material-ui/core';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-import { Box } from '@mui/material';
+import ClearIcon from '@material-ui/icons/DeleteForever';
+import {Box} from '@mui/material';
 import MaterialTable from "material-table";
 import Select from 'react-select';
-import { toast } from 'react-toastify';
+import {toast} from 'react-toastify';
 import tableIcons from "../assets/custom/js/MaterialTableIcons";
 import axios from '../helper/axios-helper';
+
 const style = {
     position: 'absolute',
     top: '50%',
@@ -83,7 +85,7 @@ const SellerPackageDashboard = () => {
             });
     };
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setFormData({
             ...formData,
             [name]: value,
@@ -91,7 +93,7 @@ const SellerPackageDashboard = () => {
     };
 
     const handleUpdateChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setUpdateModalFormData({
             ...updateModalFormData,
             [name]: value,
@@ -102,6 +104,7 @@ const SellerPackageDashboard = () => {
         setSelectedOptions(selectedOptions);
     };
     const handleUpdateProductChange = (selectedOptions) => {
+        console.log('opt', selectedOptions)
         setUpdateSelectedOptions(selectedOptions);
     };
     const handleFileChange = (e) => {
@@ -140,8 +143,15 @@ const SellerPackageDashboard = () => {
             name: data.name,
             description: data.description,
             image: data.image,
-            products: data.products,
         });
+        const tempUpdateOptions = []
+        data.products.map(prod => {
+            tempUpdateOptions.push({
+                value: prod.id,
+                label: prod.name,
+            })
+        })
+        setUpdateSelectedOptions(tempUpdateOptions)
         setOpenUpdateModal(true);
     };
 
@@ -168,14 +178,14 @@ const SellerPackageDashboard = () => {
     };
 
     const columns = [
-        { title: "Name", field: "name", sorting: true, filtering: true, filterPlaceholder: "Filter by name" },
-        { title: "Description", field: "description", filterPlaceholder: "Filter by price", align: 'center' },
+        {title: "Name", field: "name", sorting: true, filtering: true, filterPlaceholder: "Filter by name"},
+        {title: "Description", field: "description", filterPlaceholder: "Filter by price", align: 'center'},
         {
             title: "Image", field: "image", filtering: false, align: 'center', render: rowData => (
                 <img
                     src={rowData.image}
                     alt="Product Image"
-                    style={{ width: 100, height: 100, borderRadius: '50%' }}
+                    style={{width: 100, height: 100, borderRadius: '50%'}}
                 />
             ),
         },
@@ -194,7 +204,6 @@ const SellerPackageDashboard = () => {
             const regformData = new FormData();
             regformData.append('name', formData.name);
             regformData.append('description', formData.description);
-            regformData.append('products', selectedOptions);
             if (formData.image) {
                 regformData.append('image', formData.image);
             }
@@ -203,19 +212,23 @@ const SellerPackageDashboard = () => {
                 toast.warning('Please fill all the field');
                 return;
             }
-            // const response = await axios.post('/create-package/', regformData, {
-            //     headers: {
-            //         'Content-Type': 'multipart/form-data',
-            //     },
-            // });
-            console.log('regf', regformData, formData, selectedOptions);
+            const finalProducts = selectedOptions.map(item => item.value);
+            finalProducts.forEach(prod => {
+                regformData.append('products', prod)
+            })
+            console.log(1, finalProducts, regformData)
+            const response = await axios.post('/create-package/', regformData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
             fetchPackages();
             setModalLoading(false);
             handleClose();
             toast.success("Product succesfully created!");
 
-        }
-        catch (error) {
+        } catch (error) {
 
             setModalLoading(false);
             toast.error("Something went wrong!");
@@ -230,10 +243,15 @@ const SellerPackageDashboard = () => {
             regformData.append('id', updateModalFormData.id);
             regformData.append('name', updateModalFormData.name);
             regformData.append('description', updateModalFormData.description);
-            regformData.append('products', updateSelectedOptions);
+
             if (updateModalFormData.image && updateModalFormData.image instanceof File) {
                 regformData.append('image', updateModalFormData.image);
             }
+
+            const finalProducts = updateSelectedOptions.map(item => item.value);
+            finalProducts.forEach(prod => regformData.append('products', prod))
+            console.log(2, finalProducts, regformData)
+
             const response = await axios.post('/update-package/', regformData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -244,16 +262,33 @@ const SellerPackageDashboard = () => {
             handleUpdateClose();
             toast.success("Product succesfully updated!");
 
-        }
-        catch (error) {
+        } catch (error) {
 
             setModalLoading(false);
             toast.error("Something went wrong!");
         }
     };
+    const handleDelete = async (id) => {
+        try {
+
+            setLoading(true)
+            const response = await axios.delete('/delete-package/' + id, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            fetchPackages();
+            setLoading(false)
+            toast.success("Product successfully deleted!");
+        } catch (error) {
+            setLoading(false);
+            toast.error("Something went wrong!");
+        }
+
+    }
     return (
         <>
-            {(isLoading || loading) && <Loader />}
+            {(isLoading || loading) && <Loader/>}
             <div class="breadcrumb-section breadcrumb-bg">
                 <div class="container">
                     <div class="row">
@@ -285,7 +320,8 @@ const SellerPackageDashboard = () => {
                                             <div class="card-header" id="headingOne">
                                                 <h5 class="mb-0">
                                                     <button class="btn btn-link" type="button" data-toggle="collapse"
-                                                        data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                            data-target="#collapseOne" aria-expanded="true"
+                                                            aria-controls="collapseOne">
                                                         Enter Details For Creating Product
                                                     </button>
                                                 </h5>
@@ -293,7 +329,7 @@ const SellerPackageDashboard = () => {
 
 
                                             <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
-                                                data-parent="#accordionExample">
+                                                 data-parent="#accordionExample">
                                                 <div class="card-body">
                                                     <div class="billing-address-form">
 
@@ -330,7 +366,7 @@ const SellerPackageDashboard = () => {
                                                             </p>
 
 
-                                                            <p class="d-flex flex-row-reverse" style={{ gap: '20px' }}>
+                                                            <p class="d-flex flex-row-reverse" style={{gap: '20px'}}>
                                                                 {formData.image && (
                                                                     <img
                                                                         src={URL.createObjectURL(formData.image)}
@@ -343,7 +379,7 @@ const SellerPackageDashboard = () => {
                                                                 )}
                                                                 <input
                                                                     type="text"
-                                                                    style={{ cursor: 'pointer' }}
+                                                                    style={{cursor: 'pointer'}}
                                                                     placeholder="Upload Package's Image"
                                                                     value={formData.image ? formData.image.name : "Upload Package's Image"}
                                                                     onClick={handleTextClick}
@@ -352,7 +388,7 @@ const SellerPackageDashboard = () => {
                                                                 <input
                                                                     type="file"
                                                                     ref={imageInputRef}
-                                                                    style={{ display: 'none' }}
+                                                                    style={{display: 'none'}}
                                                                     onChange={handleFileChange}
                                                                     accept="image/*"
                                                                 />
@@ -369,16 +405,16 @@ const SellerPackageDashboard = () => {
 
                                         </div>
                                         {modalLoading ? <div class="card single-accordion">
-                                            <div class="card-header" id="headingOne">
+                                                <div class="card-header" id="headingOne">
 
-                                                <h5 class='create-post-submit-btn' >
+                                                    <h5 class='create-post-submit-btn'>
                                                     <span>
                                                         Loading...
                                                     </span>
-                                                </h5>
+                                                    </h5>
 
-                                            </div>
-                                        </div> :
+                                                </div>
+                                            </div> :
                                             <div class="card single-accordion">
                                                 <div class="card-header" id="headingOne">
 
@@ -399,7 +435,6 @@ const SellerPackageDashboard = () => {
 
                                 </div>
                             </div>
-
 
 
                         </div>
@@ -425,7 +460,8 @@ const SellerPackageDashboard = () => {
                                             <div class="card-header" id="headingOne">
                                                 <h5 class="mb-0">
                                                     <button class="btn btn-link" type="button" data-toggle="collapse"
-                                                        data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                            data-target="#collapseOne" aria-expanded="true"
+                                                            aria-controls="collapseOne">
                                                         Enter Details For Updating Package
                                                     </button>
                                                 </h5>
@@ -433,7 +469,7 @@ const SellerPackageDashboard = () => {
 
 
                                             <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
-                                                data-parent="#accordionExample">
+                                                 data-parent="#accordionExample">
                                                 <div class="card-body">
                                                     <div class="billing-address-form">
 
@@ -458,15 +494,7 @@ const SellerPackageDashboard = () => {
                                                                 />
 
                                                             </p>
-                                                            <p>
-                                                                <input
-                                                                    type="text"
-                                                                    name="price"
-                                                                    placeholder="Price"
-                                                                    value={updateModalFormData.price}
-                                                                    onChange={handleUpdateChange}
-                                                                />
-                                                            </p>
+
                                                             <p>
                                                                 <input
                                                                     type="tel"
@@ -478,7 +506,7 @@ const SellerPackageDashboard = () => {
                                                             </p>
 
 
-                                                            <p class="d-flex flex-row-reverse" style={{ gap: '20px' }}>
+                                                            <p class="d-flex flex-row-reverse" style={{gap: '20px'}}>
                                                                 {updateModalFormData.image && (
                                                                     typeof updateModalFormData.image === 'object' ? (
                                                                         <img
@@ -503,7 +531,7 @@ const SellerPackageDashboard = () => {
 
                                                                 <input
                                                                     type="text"
-                                                                    style={{ cursor: 'pointer' }}
+                                                                    style={{cursor: 'pointer'}}
                                                                     placeholder="Upload Product's Image"
                                                                     value={updateModalFormData.image ? updateModalFormData.image.name : "Upload Product's Image"}
                                                                     onClick={handleUpdateTextClick}
@@ -512,7 +540,7 @@ const SellerPackageDashboard = () => {
                                                                 <input
                                                                     type="file"
                                                                     ref={updateModalImageInputRef}
-                                                                    style={{ display: 'none' }}
+                                                                    style={{display: 'none'}}
                                                                     onChange={handleUpdateFileChange}
                                                                     accept="image/*"
                                                                 />
@@ -529,16 +557,16 @@ const SellerPackageDashboard = () => {
 
                                         </div>
                                         {modalLoading ? <div class="card single-accordion">
-                                            <div class="card-header" id="headingOne">
+                                                <div class="card-header" id="headingOne">
 
-                                                <h5 class='create-post-submit-btn' >
+                                                    <h5 class='create-post-submit-btn'>
                                                     <span>
                                                         Loading...
                                                     </span>
-                                                </h5>
+                                                    </h5>
 
-                                            </div>
-                                        </div> :
+                                                </div>
+                                            </div> :
                                             <div class="card single-accordion">
                                                 <div class="card-header" id="headingOne">
 
@@ -559,7 +587,6 @@ const SellerPackageDashboard = () => {
 
                                 </div>
                             </div>
-
 
 
                         </div>
@@ -585,46 +612,57 @@ const SellerPackageDashboard = () => {
                             </div>
                             {packages.length > 1 ?
                                 <MaterialTable title="All Products" icons={tableIcons} columns={columns} data={packages}
-                                    options={{
-                                        sorting: true, search: true,
-                                        searchFieldAlignment: "right", searchAutoFocus: true, searchFieldVariant: "standard",
-                                        filtering: true, paging: true, pageSizeOptions: [2, 5, 10, 20], pageSize: 5,
-                                        paginationType: "normal", showFirstLastPageButtons: true, paginationPosition: "bottom", exportButton: false,
-                                        exportAllData: true, exportFileName: "TableData", addRowPosition: "first", actionsColumnIndex: -1, selection: false,
-                                        showSelectAllCheckbox: false, showTextRowsSelected: false, selectionProps: rowData => ({
-                                            // disabled: rowData.passingYear == null,
+                                               options={{
+                                                   sorting: true,
+                                                   search: true,
+                                                   searchFieldAlignment: "right",
+                                                   searchAutoFocus: true,
+                                                   searchFieldVariant: "standard",
+                                                   filtering: true,
+                                                   paging: true,
+                                                   pageSizeOptions: [2, 5, 10, 20],
+                                                   pageSize: 5,
+                                                   paginationType: "normal",
+                                                   showFirstLastPageButtons: true,
+                                                   paginationPosition: "bottom",
+                                                   exportButton: false,
+                                                   exportAllData: true,
+                                                   exportFileName: "TableData",
+                                                   addRowPosition: "first",
+                                                   actionsColumnIndex: -1,
+                                                   selection: false,
+                                                   showSelectAllCheckbox: false,
+                                                   showTextRowsSelected: false,
+                                                   selectionProps: rowData => ({
+                                                       // disabled: rowData.passingYear == null,
 
-                                        }),
-                                        columnsButton: false,
-                                        rowStyle: {
-                                            fontSize: 16,
-                                        }
-                                        /*rowStyle: (data, index) => index % 2 === 0 ? { background: "#f5f5f5" } : null,
-                                        headerStyle: { background: "#f44336", color: "#fff" }*/
-                                    }}
-                                    localization={{
-                                        header: {
-                                            actions: 'action',
+                                                   }),
+                                                   columnsButton: false,
+                                                   rowStyle: {
+                                                       fontSize: 16,
+                                                   }
+                                                   /*rowStyle: (data, index) => index % 2 === 0 ? { background: "#f5f5f5" } : null,
+                                                   headerStyle: { background: "#f44336", color: "#fff" }*/
+                                               }}
+                                               localization={{
+                                                   header: {
+                                                       actions: 'action',
 
-                                        }
-                                    }}
-                                    actions={[
-                                        {
-                                            icon: () => <VisibilityIcon />,
-                                            tooltip: "details",
-                                            onClick: (e, data) => handleUpdateOpen(data),
-                                        },
-                                        // {
-                                        //     icon: () => <CheckIcon htmlColor='green' />,
-                                        //     tooltip: "accept",
-                                        //     onClick: (e, data) => userDetails(data),
-                                        // },
-                                        // {
-                                        //     icon: () => <ClearIcon htmlColor='red' />,
-                                        //     tooltip: "reject",
-                                        //     onClick: (e, data) => console.log(data),
-                                        // }
-                                    ]}
+                                                   }
+                                               }}
+                                               actions={[
+                                                   {
+                                                       icon: () => <VisibilityIcon/>,
+                                                       tooltip: "details",
+                                                       onClick: (e, data) => handleUpdateOpen(data),
+                                                   },
+
+                                                   {
+                                                       icon: () => <ClearIcon htmlColor='red'/>,
+                                                       tooltip: "reject",
+                                                       onClick: (e, data) => handleDelete(data.id),
+                                                   }
+                                               ]}
 
                                 />
                                 : null}

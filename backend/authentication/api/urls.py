@@ -34,7 +34,20 @@ urlpatterns = [
     path('products-for-seller/', views.ProductViewSet.as_view(), name='product-list-for-seller'),
     path('create-product/', views.create_product, name='product-create'),
     path('update-product/', views.update_product, name='product-update'),
+    path('delete-product/<int:pk>/', views.delete_product, name='delete_product'),
 
+    path('create-package/', views.PackageCreate.as_view(), name='package-create'),
+    path('update-package/', views.update_package, name='package-update'),
+    path('delete-package/<int:pk>/', views.delete_package, name='delete_package'),
 
+    path('seller-orders/', views.SellerOrderListView.as_view(), name='seller_user_orders'),
+    path('seller-package-orders/', views.SellerPackageOrderListAPIView.as_view(), name='seller_package_order_list'),
+
+    path('status-change/', views.status_change, name='status-change'),
+
+    path('delivery-orders/<str:status>', views.DeliveryOrderListAPIView.as_view(), name='delivery-orders'),
+    path('delivery-package-orders/<str:status>', views.DeliveryPackageOrderListAPIView.as_view(), name='delivery-package-orders'),
+
+    path('send-mail/<str:product_type>/<str:product_status>', views.send_email, name='send_mail'),
 ]
 

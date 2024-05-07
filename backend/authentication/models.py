@@ -78,7 +78,20 @@ class Package(models.Model):
         return self.name
     
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ORDERED = 'ORDERED'
+    COOK_READY = 'COOK_READY'
+    ACCEPT = 'ACCEPT'
+    PICKED_UP = 'PICKED_UP'
+    DELIVERED = 'DELIVERED'
+
+    STATUS_TYPES = [
+        (ORDERED, _('Ordered')),
+        (COOK_READY, _('Cooked Ready')),
+        (ACCEPT, _('Accept')),
+        (PICKED_UP, _('Picked Up')),
+        (DELIVERED, _('Delivered')),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='order_product_user')
     name = models.CharField(max_length=255)
     address = models.TextField()
     phone = models.CharField(max_length=20)
@@ -86,6 +99,9 @@ class Order(models.Model):
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     payment_id = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=STATUS_TYPES, default=ORDERED)
+    otp = models.CharField(max_length=20,default=0)
+    delivery_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='delivery_product_user',null=True,blank=True)
 
     def __str__(self):
         return f"Order #{self.pk} - {self.user.email}"
@@ -99,7 +115,20 @@ class OrderProduct(models.Model):
         return f"{self.quantity} x {self.product.name} - Order #{self.order.pk}"
     
 class PackageOrder(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ORDERED = 'ORDERED'
+    COOK_READY = 'COOK_READY'
+    ACCEPT = 'ACCEPT'
+    PICKED_UP = 'PICKED_UP'
+    DELIVERED = 'DELIVERED'
+
+    STATUS_TYPES = [
+        (ORDERED, _('Ordered')),
+        (COOK_READY, _('Cooked Ready')),
+        (ACCEPT, _('Accept')),
+        (PICKED_UP, _('Picked Up')),
+        (DELIVERED, _('Delivered')),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='order_package_user')
     name = models.CharField(max_length=255)
     address = models.TextField()
     bill = models.TextField(default='')
@@ -108,6 +137,9 @@ class PackageOrder(models.Model):
     payment_id = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     package = models.ForeignKey(Package, on_delete=models.CASCADE, related_name='package_orders')
+    status = models.CharField(max_length=20, choices=STATUS_TYPES, default=ORDERED)
+    otp = models.CharField(max_length=20, default=0)
+    delivery_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='delivery_package_user',null=True,blank=True)
 
     def __str__(self):
         return f"Package Order #{self.pk} - {self.user.email}"

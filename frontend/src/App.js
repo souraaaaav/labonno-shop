@@ -35,6 +35,16 @@ import Shop from "./pages/Shop";
 import SinglePackage from "./pages/SinglePackage";
 import SinglePackageBuild from "./pages/SinglePackageBuild";
 import SingleProduct from "./pages/SingleProduct";
+import SellerType from "./pages/SellerType";
+import SellerOrder from "./pages/SellerOrder";
+import SellerPackageOrders from "./pages/SellerPackageOrders";
+import DeliveryType from "./pages/DeliveryType";
+import DeliveryFindProducts from "./pages/DeliveryFindProducts";
+import DeliveryFindPackages from "./pages/DeliveryFindPackages";
+import DeliveryAcceptProducts from "./pages/DeliveryAcceptProducts";
+import DeliveryAcceptPackages from "./pages/DeliveryAcceptPackage";
+import DeliveryDeliverProduct from "./pages/DeliveryDeliverProduct";
+import DeliveryDeliverPackage from "./pages/DeliveryDeliverPackage";
 
 function App({ check_continuous_auth }) {
   const location = useLocation();
@@ -58,8 +68,21 @@ function App({ check_continuous_auth }) {
         <Route exact path='/checkout' element={<Checkout />} />
         <Route exact path='/cart' element={<Cart />} />
         <Route exact path='/package-cart/:id' element={<PackageCart />} />
+
+        <Route exact path='/seller-package-order' element={<SellerPackageOrders />} />
+        <Route exact path='/seller-order' element={<SellerOrder />} />
         <Route exact path='/seller-product-dashboard' element={<SellerProductDashboard />} />
         <Route exact path='/seller-package-dashboard' element={<SellerPackageDashboard />} />
+        <Route exact path='/seller-dashboard' element={<SellerType />} />
+
+        <Route exact path='/delivery-dashboard' element={<DeliveryType />} />
+        <Route exact path='/delivery-find-products' element={<DeliveryFindProducts />} />
+        <Route exact path='/delivery-find-packages' element={<DeliveryFindPackages />} />
+        <Route exact path='/delivery-product-accept' element={<DeliveryAcceptProducts />} />
+        <Route exact path='/delivery-package-accept' element={<DeliveryAcceptPackages />} />
+        <Route exact path='/delivery-product-deliver' element={<DeliveryDeliverProduct />} />
+        <Route exact path='/delivery-package-deliver' element={<DeliveryDeliverPackage />} />
+
         <Route exact path='/shop' element={<Shop />} />
         <Route exact path='/forget-password-confirm' element={<ForgetPasswordConfirm />} />
         <Route exact path='/forget-password-start' element={<ForgetPasswordStart />} />

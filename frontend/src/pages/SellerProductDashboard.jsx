@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Loader from '../components/Loader/Loader';
 import useLoading from '../hook/customHook';
+import ClearIcon from '@material-ui/icons/DeleteForever';
 
 import { Modal } from '@material-ui/core';
 import VisibilityIcon from '@material-ui/icons/Visibility';
@@ -239,6 +240,25 @@ const SellerProductDashboard = () => {
             toast.error("Something went wrong!");
         }
     };
+
+        const handleDelete = async (id) => {
+        try {
+
+            setLoading(true)
+            const response = await axios.delete('/delete-product/' + id, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            fetchProducts();
+            setLoading(false)
+            toast.success("Product successfully deleted!");
+        } catch (error) {
+            setLoading(false);
+            toast.error("Something went wrong!");
+        }
+
+    }
     return (
         <>
             {(isLoading || loading) && <Loader />}
@@ -617,11 +637,11 @@ const SellerProductDashboard = () => {
                                         //     tooltip: "accept",
                                         //     onClick: (e, data) => userDetails(data),
                                         // },
-                                        // {
-                                        //     icon: () => <ClearIcon htmlColor='red' />,
-                                        //     tooltip: "reject",
-                                        //     onClick: (e, data) => console.log(data),
-                                        // }
+                                        {
+                                            icon: () => <ClearIcon htmlColor='red' />,
+                                            tooltip: "reject",
+                                            onClick: (e, data) => handleDelete(data.id),
+                                        }
                                     ]}
 
                                 />

@@ -35,7 +35,10 @@ const Login = () => {
         toast.success("login success");
         return <Navigate to="/shop" />;
     }
-
+if (storeData.isAuthenticated && storeData.user && storeData.user.is_verified && storeData.user.is_delivery_man) {
+        toast.success("login success");
+        return <Navigate to="/delivery-dashboard" />;
+    }
     if (storeData.isAuthenticated && storeData.user && storeData.user.is_verified) {
         return <Navigate to="/seller-dashboard" />;
     }
