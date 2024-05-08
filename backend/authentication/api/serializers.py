@@ -91,7 +91,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at','order_products','delivery_user','status']
+        fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at','order_products','delivery_user','status','cod']
 
 class PackageOrderSerializer(serializers.ModelSerializer):
     package_order_products = PackageOrderProductSerializer(many=True, read_only=True)
@@ -99,7 +99,7 @@ class PackageOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PackageOrder
-        fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at', 'package', 'package_order_products','delivery_user','status']
+        fields = ['id', 'user', 'name', 'address', 'phone', 'bill', 'payment_id', 'total_price', 'created_at', 'package', 'package_order_products','delivery_user','status','cod']
 
 
 class ProductCommentSerializer(serializers.ModelSerializer):

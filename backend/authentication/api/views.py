@@ -265,7 +265,7 @@ def create_order(request):
         payment_id = data.get('payment_id')
         total_price = data.get('total_price')
         cart_items = data.get('cart_items', [])
-
+        cod = data.get('cod')
         print(data)
 
         order = Order.objects.create(
@@ -275,7 +275,8 @@ def create_order(request):
             phone=phone,
             bill=bill,
             payment_id=payment_id,
-            total_price=total_price
+            total_price=total_price,
+            cod=cod
         )
 
         for item in cart_items:
@@ -326,6 +327,7 @@ def create_package_order(request):
         total_price = data.get('total_price')
         package_order = data.get('package_order')
         cart_items = data.get('cart_items', [])
+        cod = data.get('cod')
 
         print(data)
 
@@ -337,6 +339,7 @@ def create_package_order(request):
             bill=bill,
             payment_id=payment_id,
             total_price=total_price,
+            cod=cod,
             package=Package.objects.get(pk=package_order)
         )
 
@@ -668,7 +671,7 @@ def status_change(request):
                 package.status = order_status
                 package.delivery_user = request.user
                 package.save()
-            if order_status == "PICKED_UP" or order_status == "DELIVERED" :
+            if order_status == "PICKED_UP" or order_status == "DELIVERED":
                 order = PackageOrder.objects.get(id=order_id)
                 if order.otp != otp:
                     return Response({'error': 'otp didn\'t match'}, status=status.HTTP_400_BAD_REQUEST)
@@ -707,7 +710,7 @@ class DeliveryPackageOrderListAPIView(generics.ListAPIView):
         status = self.kwargs.get('status', None)
 
         if status:
-            if status == "ACCEPT" or status== "PICKED_UP":
+            if status == "ACCEPT" or status == "PICKED_UP":
                 queryset = queryset.filter(status=status, delivery_user=self.request.user)
             else:
                 queryset = queryset.filter(status=status)

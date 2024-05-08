@@ -97,6 +97,13 @@ const DeliveryAcceptProducts = () => {
             filtering: true,
             filterPlaceholder: "Filter by address"
         },
+        {
+            title: "Cash on Delivery",
+            field: "cod",
+            sorting: true,
+            filtering: true,
+            filterPlaceholder: "Filter by Type"
+        },
         {title: "Placed At", field: "created_at", filterPlaceholder: "Filter by date",},
     ];
 

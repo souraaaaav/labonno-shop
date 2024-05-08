@@ -119,6 +119,13 @@ const DeliveryDeliverProduct = () => {
             filtering: true,
             filterPlaceholder: "Filter by price"
         },
+        {
+            title: "Cash on Delivery",
+            field: "cod",
+            sorting: true,
+            filtering: true,
+            filterPlaceholder: "Filter by Type"
+        },
     ];
 
     const handleModalOpen = (data) => {

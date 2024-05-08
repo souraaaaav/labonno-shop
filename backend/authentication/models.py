@@ -102,7 +102,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_TYPES, default=ORDERED)
     otp = models.CharField(max_length=20,default=0)
     delivery_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='delivery_product_user',null=True,blank=True)
-
+    cod = models.BooleanField(default=False)
     def __str__(self):
         return f"Order #{self.pk} - {self.user.email}"
 
@@ -140,7 +140,7 @@ class PackageOrder(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_TYPES, default=ORDERED)
     otp = models.CharField(max_length=20, default=0)
     delivery_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='delivery_package_user',null=True,blank=True)
-
+    cod = models.BooleanField(default=False)
     def __str__(self):
         return f"Package Order #{self.pk} - {self.user.email}"
 

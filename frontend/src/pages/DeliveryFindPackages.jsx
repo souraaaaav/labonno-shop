@@ -89,6 +89,13 @@ const DeliveryFindPackages = () => {
             filtering: true,
             filterPlaceholder: "Filter by payment id"
         },
+        {
+            title: "Cash on Delivery",
+            field: "cod",
+            sorting: true,
+            filtering: true,
+            filterPlaceholder: "Filter by Type"
+        },
         {title: "Placed At", field: "created_at", filterPlaceholder: "Filter by date", align: 'center'},
     ];
 
