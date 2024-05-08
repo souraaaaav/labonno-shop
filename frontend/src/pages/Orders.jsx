@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Loader from '../components/Loader/Loader.jsx';
-import axios from '../helper/axios-helper.js';
 import Stepper from "../components/Stepper/Stepper";
+import axios from '../helper/axios-helper.js';
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);
@@ -89,7 +89,7 @@ const Orders = () => {
                 </div>
             </div>
             <div class="cart-section mt-100 mb-150">
-                <div class="container">
+                <div class="container-fluid">
                     {/* <div class="col-lg-8 offset-lg-2 text-center">
                         <div class="section-title">
                             <h3>Order ID <span class="orange-text">122-122-222-333</span></h3>
@@ -161,7 +161,7 @@ const Orders = () => {
                                                     </table>
                                                 </td>
                                                 <td>
-                                                    <Stepper currentStatus = {order.status} />
+                                                    <Stepper currentStatus={order.status} />
                                                 </td>
                                             </tr>
                                         )) : <tr className="total-data" ><td colSpan={4}>No Orders found!!!</td></tr>}
@@ -220,35 +220,35 @@ const Orders = () => {
                                                 <td>
                                                     <table class="total-table">
                                                         <thead class="total-table-head">
-                                                        <tr class="table-total-row">
-                                                            <th>Name</th>
-                                                            <th>Price(per unit)</th>
-                                                            <th>Quantity</th>
-                                                            <th>Total Price</th>
-                                                        </tr>
+                                                            <tr class="table-total-row">
+                                                                <th>Name</th>
+                                                                <th>Price(per unit)</th>
+                                                                <th>Quantity</th>
+                                                                <th>Total Price</th>
+                                                            </tr>
                                                         </thead>
 
                                                         <tbody>
-                                                        {order.package_order_products.map((item, i) => (
-                                                            <tr key={i} className="total-data">
-                                                                <td>{item.product.name}</td>
-                                                                <td>{item.product.price}</td>
-                                                                <td>{item.quantity}</td>
-                                                                <td> {parseInt(item.product.price) * item.quantity}</td>
+                                                            {order.package_order_products.map((item, i) => (
+                                                                <tr key={i} className="total-data">
+                                                                    <td>{item.product.name}</td>
+                                                                    <td>{item.product.price}</td>
+                                                                    <td>{item.quantity}</td>
+                                                                    <td> {parseInt(item.product.price) * item.quantity}</td>
 
+                                                                </tr>
+                                                            ))}
+                                                            <tr className="total-data">
+                                                                <td>Shipping</td>
+                                                                <td></td>
+                                                                <td></td>
+                                                                <td>45</td>
                                                             </tr>
-                                                        ))}
-                                                        <tr className="total-data">
-                                                            <td>Shipping</td>
-                                                            <td></td>
-                                                            <td></td>
-                                                            <td>45</td>
-                                                        </tr>
                                                         </tbody>
                                                     </table>
                                                 </td>
                                                 <td>
-                                                    <Stepper currentStatus={order.status}/>
+                                                    <Stepper currentStatus={order.status} />
                                                 </td>
                                             </tr>
                                         )) : <tr className="total-data">

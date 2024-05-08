@@ -1,14 +1,14 @@
-import React, {useEffect, useState} from 'react';
-import {useSelector} from 'react-redux';
+import { Modal } from "@material-ui/core";
+import CheckIcon from "@material-ui/icons/Check";
+import VisibilityIcon from "@material-ui/icons/Visibility";
+import { Box } from "@mui/material";
+import MaterialTable from "material-table";
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { toast } from "react-toastify";
+import tableIcons from "../assets/custom/js/MaterialTableIcons";
 import Loader from '../components/Loader/Loader.jsx';
 import axios from '../helper/axios-helper.js';
-import tableIcons from "../assets/custom/js/MaterialTableIcons";
-import VisibilityIcon from "@material-ui/icons/Visibility";
-import CheckIcon from "@material-ui/icons/Check";
-import MaterialTable from "material-table";
-import {Modal} from "@material-ui/core";
-import {Box} from "@mui/material";
-import {toast} from "react-toastify";
 
 const style = {
     position: 'absolute',
@@ -25,6 +25,7 @@ const style = {
 };
 
 const SellerPackageOrders = () => {
+    const storeData = useSelector(state => state.auth);
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -85,8 +86,8 @@ const SellerPackageOrders = () => {
             filtering: true,
             filterPlaceholder: "Filter by payment id"
         },
-        {title: "Placed At", field: "created_at", filterPlaceholder: "Filter by date", align: 'center'},
-        {title: "Buyer Number", field: "phone", filterPlaceholder: "Filter by phone", align: 'center'},
+        { title: "Placed At", field: "created_at", filterPlaceholder: "Filter by date", align: 'center' },
+        { title: "Buyer Number", field: "phone", filterPlaceholder: "Filter by phone", align: 'center' },
     ];
 
     const handleModalOpen = (data) => {
@@ -101,10 +102,11 @@ const SellerPackageOrders = () => {
     const handleSubmitOrder = async (data) => {
         try {
             setLoading(true);
-            const requestData = {type: 'package', status: 'COOK_READY', id: data.id}
+            const requestData = { type: 'package', status: 'COOK_READY', id: data.id }
             const response = await axios.post('/status-change/', JSON.stringify(requestData), {
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Token ${storeData.token}`,
                 },
             });
             fetchPackageOrders(searchTerm, setLoading, setOrders);
@@ -118,7 +120,7 @@ const SellerPackageOrders = () => {
     }
     return (
         <>
-            {(loading) && <Loader/>}
+            {(loading) && <Loader />}
             <div class="breadcrumb-section breadcrumb-bg">
                 <div class="container">
                     <div class="row">
@@ -153,54 +155,54 @@ const SellerPackageOrders = () => {
                                     <div class="total-section">
                                         <table class="total-table">
                                             <thead class="total-table-head">
-                                            <tr class="table-total-row">
-                                                <th>Payment Id</th>
-                                                <th>Total Price</th>
-                                                <th>Product Details</th>
-                                            </tr>
+                                                <tr class="table-total-row">
+                                                    <th>Payment Id</th>
+                                                    <th>Total Price</th>
+                                                    <th>Product Details</th>
+                                                </tr>
                                             </thead>
                                             <tbody>
 
-                                            <tr className="total-data">
-                                                <td><strong>{modalOrder?.payment_id}</strong></td>
+                                                <tr className="total-data">
+                                                    <td><strong>{modalOrder?.payment_id}</strong></td>
 
-                                                <td>{modalOrder?.total_price}</td>
-                                                <td>
-                                                    <table class="total-table">
-                                                        <thead class="total-table-head">
-                                                        <tr class="table-total-row">
-                                                            <th>Name</th>
-                                                            <th>Image</th>
-                                                            <th>Price(per unit)</th>
-                                                            <th>Quantity</th>
-                                                            <th>Total Price</th>
-                                                        </tr>
-                                                        </thead>
+                                                    <td>{modalOrder?.total_price}</td>
+                                                    <td>
+                                                        <table class="total-table">
+                                                            <thead class="total-table-head">
+                                                                <tr class="table-total-row">
+                                                                    <th>Name</th>
+                                                                    <th>Image</th>
+                                                                    <th>Price(per unit)</th>
+                                                                    <th>Quantity</th>
+                                                                    <th>Total Price</th>
+                                                                </tr>
+                                                            </thead>
 
-                                                        <tbody>
-                                                        {modalOrder?.package_order_products.map((item, i) => (
-                                                            <tr key={i} className="total-data">
-                                                                <td>{item.product.name}</td>
-                                                                <td><img
-                                                                    src={item.product.image}
-                                                                    alt="Product Image"
-                                                                    style={{
-                                                                        width: 100,
-                                                                        height: 100,
-                                                                        borderRadius: '50%'
-                                                                    }}
-                                                                /></td>
-                                                                <td>{item.product.price}</td>
-                                                                <td>{item.quantity}</td>
+                                                            <tbody>
+                                                                {modalOrder?.package_order_products.map((item, i) => (
+                                                                    <tr key={i} className="total-data">
+                                                                        <td>{item.product.name}</td>
+                                                                        <td><img
+                                                                            src={item.product.image}
+                                                                            alt="Product Image"
+                                                                            style={{
+                                                                                width: 100,
+                                                                                height: 100,
+                                                                                borderRadius: '50%'
+                                                                            }}
+                                                                        /></td>
+                                                                        <td>{item.product.price}</td>
+                                                                        <td>{item.quantity}</td>
 
-                                                                <td> {parseInt(item.product.price) * item.quantity}</td>
-                                                            </tr>
-                                                        ))}
+                                                                        <td> {parseInt(item.product.price) * item.quantity}</td>
+                                                                    </tr>
+                                                                ))}
 
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
 
                                             </tbody>
                                         </table>
@@ -210,57 +212,57 @@ const SellerPackageOrders = () => {
                         </Modal>
                         <div className="col-lg-12">
                             <MaterialTable title="All Pending Orders" icons={tableIcons} columns={columns} data={orders}
-                                           options={{
-                                               sorting: true,
-                                               search: true,
-                                               searchFieldAlignment: "right",
-                                               searchAutoFocus: true,
-                                               searchFieldVariant: "standard",
-                                               filtering: true,
-                                               paging: true,
-                                               pageSizeOptions: [2, 5, 10, 20],
-                                               pageSize: 5,
-                                               paginationType: "normal",
-                                               showFirstLastPageButtons: true,
-                                               paginationPosition: "bottom",
-                                               exportButton: false,
-                                               exportAllData: true,
-                                               exportFileName: "TableData",
-                                               addRowPosition: "first",
-                                               actionsColumnIndex: -1,
-                                               selection: false,
-                                               showSelectAllCheckbox: false,
-                                               showTextRowsSelected: false,
-                                               selectionProps: rowData => ({
-                                                   // disabled: rowData.passingYear == null,
+                                options={{
+                                    sorting: true,
+                                    search: true,
+                                    searchFieldAlignment: "right",
+                                    searchAutoFocus: true,
+                                    searchFieldVariant: "standard",
+                                    filtering: true,
+                                    paging: true,
+                                    pageSizeOptions: [2, 5, 10, 20],
+                                    pageSize: 5,
+                                    paginationType: "normal",
+                                    showFirstLastPageButtons: true,
+                                    paginationPosition: "bottom",
+                                    exportButton: false,
+                                    exportAllData: true,
+                                    exportFileName: "TableData",
+                                    addRowPosition: "first",
+                                    actionsColumnIndex: -1,
+                                    selection: false,
+                                    showSelectAllCheckbox: false,
+                                    showTextRowsSelected: false,
+                                    selectionProps: rowData => ({
+                                        // disabled: rowData.passingYear == null,
 
-                                               }),
-                                               columnsButton: false,
-                                               rowStyle: {
-                                                   fontSize: 16,
-                                               }
-                                               /*rowStyle: (data, index) => index % 2 === 0 ? { background: "#f5f5f5" } : null,
-                                               headerStyle: { background: "#f44336", color: "#fff" }*/
-                                           }}
-                                           localization={{
-                                               header: {
-                                                   actions: 'action',
+                                    }),
+                                    columnsButton: false,
+                                    rowStyle: {
+                                        fontSize: 16,
+                                    }
+                                    /*rowStyle: (data, index) => index % 2 === 0 ? { background: "#f5f5f5" } : null,
+                                    headerStyle: { background: "#f44336", color: "#fff" }*/
+                                }}
+                                localization={{
+                                    header: {
+                                        actions: 'action',
 
-                                               }
-                                           }}
-                                           actions={[
-                                               {
-                                                   icon: () => <VisibilityIcon/>,
-                                                   tooltip: "details",
-                                                   onClick: (e, data) => handleModalOpen(data),
-                                               },
-                                               {
-                                                   icon: () => <CheckIcon htmlColor='green'/>,
-                                                   tooltip: "accept",
-                                                   onClick: (e, data) => handleSubmitOrder(data),
-                                               },
+                                    }
+                                }}
+                                actions={[
+                                    {
+                                        icon: () => <VisibilityIcon />,
+                                        tooltip: "details",
+                                        onClick: (e, data) => handleModalOpen(data),
+                                    },
+                                    {
+                                        icon: () => <CheckIcon htmlColor='green' />,
+                                        tooltip: "accept",
+                                        onClick: (e, data) => handleSubmitOrder(data),
+                                    },
 
-                                           ]}
+                                ]}
 
                             />
                         </div>

@@ -5,7 +5,7 @@ from django.core.mail import EmailMessage
 EMAIL_ADDRESS="labonnoahmed0987@gmail.com"
 EMAIL_APP_PASSWORD="djfkgjzlteqomjhj"
 FRONTEND_URL="http://localhost:3000/"
-SHOP_OWNER_EMAIL="souravdebnath97@gmail.com"
+SHOP_OWNER_EMAIL="anon91221@gmail.com"
 
 
 class Util:

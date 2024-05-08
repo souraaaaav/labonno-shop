@@ -23,7 +23,7 @@ html {
 }
 
 body {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-weight: 400;
   font-size: 1rem;
   letter-spacing: 0.1px;
@@ -61,7 +61,7 @@ h5,
 .h5,
 h6,
 .h6 {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-weight: 700;
   margin: 0 0 1.25rem 0;
   color: #051922;
@@ -173,7 +173,7 @@ h6,
 }
 
 p {
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   font-weight: 400;
   font-size: 1rem;
   letter-spacing: 0.1px;
@@ -227,7 +227,7 @@ p:last-child {
 }
 
 .circle:before {
-  content: '';
+  content: "";
   width: 6vmax;
   height: 6vmax;
   display: block;
@@ -241,7 +241,7 @@ p:last-child {
 }
 
 .circle:after {
-  content: '';
+  content: "";
   width: 6vmax;
   height: 6vmax;
   display: block;
@@ -439,7 +439,7 @@ p:last-child {
 }
 
 a.boxed-btn {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   display: inline-block;
   background-color: #f28123;
   color: #fff;
@@ -447,7 +447,7 @@ a.boxed-btn {
 }
 
 a.bordered-btn {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   display: inline-block;
   color: #fff;
   border: 2px solid #f28123;
@@ -487,7 +487,7 @@ a.cart-btn {
 
 .section-title h3:after {
   position: absolute;
-  content: '';
+  content: "";
   left: 0px;
   right: 0px;
   bottom: 0px;
@@ -511,7 +511,7 @@ a.cart-btn {
 }
 
 .breadcrumb-bg {
-  background-image: url(../img/breadcrumb-bg.jpg);
+  background-image: url(../img/main.jpg);
 }
 
 .breadcrumb-text p {
@@ -545,7 +545,7 @@ a.cart-btn {
   top: 0;
   width: 100%;
   height: 100%;
-  content: '';
+  content: "";
   background-color: #07212e;
   z-index: -1;
   opacity: 0.8;
@@ -831,7 +831,7 @@ a.mobile-show {
   color: #fff;
 }
 
-.search-bar-tablecell button[type='submit'] {
+.search-bar-tablecell button[type="submit"] {
   border: none;
   background-color: #f28123;
   padding: 15px 30px;
@@ -857,7 +857,7 @@ a.mobile-show {
   color: #fff;
 }
 
-.search-bar-tablecell button[type='submit'] i {
+.search-bar-tablecell button[type="submit"] i {
   margin-left: 5px;
 }
 
@@ -920,7 +920,7 @@ h2.widget-title:after {
   width: 20px;
   height: 2px;
   background-color: #f28123;
-  content: '';
+  content: "";
 }
 
 .footer-box p {
@@ -945,7 +945,7 @@ h2.widget-title:after {
   margin-bottom: 0;
 }
 
-.footer-box.subscribe form input[type='email'] {
+.footer-box.subscribe form input[type="email"] {
   border: none;
   background-color: #012738;
   width: 78%;
@@ -1023,8 +1023,8 @@ h2.widget-title:after {
   position: absolute;
   left: 0;
   top: 0;
-  content: '\f105';
-  font-family: 'Font Awesome 5 Free';
+  content: "\f105";
+  font-family: "Font Awesome 5 Free";
   font-weight: 900;
   color: #f28123;
 }
@@ -1207,14 +1207,14 @@ ul.social-link-team li a:hover {
   box-shadow: 0 0 80px #6f6f6f;
 }
 
-input[type='submit'] {
+input[type="submit"] {
   -webkit-transition: 0.3s;
   -o-transition: 0.3s;
   transition: 0.3s;
   border-radius: 50px !important;
 }
 
-input[type='submit']:hover {
+input[type="submit"]:hover {
   background-color: #051922;
   color: #f28123;
 }
@@ -1366,13 +1366,13 @@ ul.product-share li:hover a {
   box-shadow: none;
 }
 
-.search-bar-tablecell button[type='submit'] {
+.search-bar-tablecell button[type="submit"] {
   -webkit-transition: 0.3s;
   -o-transition: 0.3s;
   transition: 0.3s;
 }
 
-.search-bar-tablecell button[type='submit']:hover {
+.search-bar-tablecell button[type="submit"]:hover {
   background-color: #fff;
   color: #000;
 }
@@ -1436,7 +1436,7 @@ body {
   top: 0;
   width: 100%;
   height: 100%;
-  content: '';
+  content: "";
   background-color: #07212e;
   z-index: -1;
   opacity: 0.6;
@@ -1499,7 +1499,7 @@ body {
   height: 600px;
 }
 
-input[type='submit'] {
+input[type="submit"] {
   background-color: #f28123;
   color: #051922;
   font-weight: 700;
@@ -1561,7 +1561,7 @@ input[type='submit'] {
   width: 100%;
   height: 100%;
   background-color: #051922;
-  content: '';
+  content: "";
   z-index: -1;
   opacity: 0.7;
 }
@@ -1866,7 +1866,7 @@ span.comment-date {
   margin-bottom: 30px;
 }
 
-.comment-template form p input[type='text'] {
+.comment-template form p input[type="text"] {
   border: 1px solid #ddd;
   width: 49%;
   padding: 15px;
@@ -1875,7 +1875,7 @@ span.comment-date {
   color: #051922;
 }
 
-.comment-template form p input[type='email'] {
+.comment-template form p input[type="email"] {
   border: 1px solid #ddd;
   width: 49%;
   padding: 15px;
@@ -1940,8 +1940,8 @@ span.comment-date {
   position: absolute;
   left: 0;
   top: 2px;
-  content: '\f105';
-  font-family: 'Font Awesome 5 Free';
+  content: "\f105";
+  font-family: "Font Awesome 5 Free";
   font-weight: 900;
 }
 
@@ -2156,7 +2156,7 @@ a.video-play-btn {
   top: 0;
   width: 100%;
   height: 100%;
-  content: '';
+  content: "";
   background-color: #051922;
   opacity: 0.3;
 }
@@ -2238,7 +2238,7 @@ a.video-play-btn {
   top: 0;
   width: 40%;
   height: 100%;
-  content: '';
+  content: "";
   background-size: cover;
   background-position: center;
   border-top-left-radius: 5px;
@@ -2336,9 +2336,9 @@ ul.social-link-team li a {
   line-height: 1.8;
 }
 
-.contact-form form p input[type='text'],
-.contact-form form p input[type='tel'],
-.contact-form form p input[type='email'] {
+.contact-form form p input[type="text"],
+.contact-form form p input[type="tel"],
+.contact-form form p input[type="email"] {
   width: 100%;
   padding: 15px;
   border: 1px solid #ddd;
@@ -2501,7 +2501,7 @@ ul.social-link-team li a {
 }
 
 p.product-price {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   font-size: 30px;
   font-weight: 700;
   margin-bottom: 15px;
@@ -2516,7 +2516,7 @@ p.product-price span {
 
 .cart-btn,
 a.cart-btn {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   display: inline-block;
   background-color: #f28123;
   color: #fff;
@@ -2561,7 +2561,7 @@ p.single-product-pricing span {
   line-height: inherit;
 }
 
-input[type='number'] {
+input[type="number"] {
   border: 1px solid #ddd;
   border-radius: 5px;
   padding: 10px;
@@ -2690,7 +2690,7 @@ tr.total-data td strong {
   font-weight: 500;
 }
 
-.coupon-form-wrap form p input[type='text'] {
+.coupon-form-wrap form p input[type="text"] {
   border: 1px solid #ddd;
   color: #051922;
   padding: 15px;
@@ -2762,8 +2762,8 @@ tr.total-data td strong {
   position: absolute;
   left: 20px;
   top: 50%;
-  content: '\f058';
-  font-family: 'Font Awesome 5 Free';
+  content: "\f058";
+  font-family: "Font Awesome 5 Free";
   font-weight: 900;
   line-height: 22px;
   margin-top: -11px;

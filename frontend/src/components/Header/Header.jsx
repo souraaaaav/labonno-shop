@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { logout } from '../../actions/auth';
-import logo from '../../assets/img/White logo - no background.png';
+import logo from '../../assets/img/logo1.png';
 import './Header.css';
 const Header = () => {
     const navigate = useNavigate();
@@ -68,16 +68,16 @@ const Header = () => {
                                                 </li>
                                             </> : null
                                         }
-                                        {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified && storeData.user.is_delivery_man)?
-                                        <>
+                                        {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified && storeData.user.is_delivery_man) ?
+                                            <>
                                                 <li>
                                                     <NavLink exact to="/delivery-dashboard"
                                                         className={({ isActive }) => isActive ? "current-list-item" : ""}>Dashboard</NavLink>
                                                 </li>
                                             </> : null
                                         }
-                                        {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified && !(storeData.user.is_customer || storeData.user.is_delivery_man))?
-                                        <>
+                                        {(storeData.isAuthenticated && storeData.user && storeData.user.is_verified && !(storeData.user.is_customer || storeData.user.is_delivery_man)) ?
+                                            <>
                                                 <li>
                                                     <NavLink exact to="/seller-dashboard"
                                                         className={({ isActive }) => isActive ? "current-list-item" : ""}>Dashboard</NavLink>
