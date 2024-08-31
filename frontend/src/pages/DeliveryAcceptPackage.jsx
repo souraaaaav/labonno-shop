@@ -1,14 +1,14 @@
-import React, {useEffect, useState} from 'react';
-import {useSelector} from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import Loader from '../components/Loader/Loader.jsx';
 import axios from '../helper/axios-helper.js';
 import tableIcons from "../assets/custom/js/MaterialTableIcons";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import CheckIcon from "@material-ui/icons/Check";
 import MaterialTable from "material-table";
-import {Modal} from "@material-ui/core";
-import {Box} from "@mui/material";
-import {toast} from "react-toastify";
+import { Modal } from "@material-ui/core";
+import { Box } from "@mui/material";
+import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 
 const style = {
@@ -31,9 +31,9 @@ const DeliveryAcceptPackages = () => {
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [open, setOpen] = useState(false);
-    const [modalOrder, setModalOrder] = useState(null)
+    const [modalOrder, setModalOrder] = useState(null);
 
-    console.log(storeData)
+    console.log(storeData);
     const fetchSellerOrders = (searchTerm, setLoading, setOrders) => {
         setLoading(true);
         const config = {
@@ -64,7 +64,7 @@ const DeliveryAcceptPackages = () => {
             });
     };
 
-// Call fetchSellerOrders when needed, passing the searchTerm, setLoading, and setOrders functions as arguments
+    // Call fetchSellerOrders when needed, passing the searchTerm, setLoading, and setOrders functions as arguments
     useEffect(() => {
         fetchSellerOrders(searchTerm, setLoading, setOrders);
     }, [searchTerm]);
@@ -78,7 +78,7 @@ const DeliveryAcceptPackages = () => {
             minute: '2-digit',
             second: '2-digit'
         };
-        console.log(date.toLocaleDateString('en-US', options))
+        console.log(date.toLocaleDateString('en-US', options));
         return date.toLocaleDateString('en-US', options);
     };
 
@@ -104,22 +104,25 @@ const DeliveryAcceptPackages = () => {
             filtering: true,
             filterPlaceholder: "Filter by Type"
         },
-        {title: "Placed At", field: "created_at", filterPlaceholder: "Filter by date", },
-    ];
+        {
+            title: "Placed At", field: "created_at", sorting: true,
+            filtering: true,
+            filterPlaceholder: "Filter by Date"
+        }];
 
     const handleModalOpen = (data) => {
-        setModalOrder(data)
-        setOpen(true)
-    }
+        setModalOrder(data);
+        setOpen(true);
+    };
     const handleModalClose = () => {
-        setModalOrder(null)
-        setOpen(false)
-    }
+        setModalOrder(null);
+        setOpen(false);
+    };
 
     const handleSubmitOrder = async (data) => {
         try {
             setLoading(true);
-            const requestData = {type: 'package', status: 'ACCEPT', id: data.id}
+            const requestData = { type: 'package', status: 'ACCEPT', id: data.id };
             const response = await axios.post('/status-change/', JSON.stringify(requestData), {
                 headers: {
                     'Content-Type': 'application/json',
@@ -127,13 +130,13 @@ const DeliveryAcceptPackages = () => {
                 },
             });
             fetchSellerOrders(searchTerm, setLoading, setOrders);
-            setLoading(false)
-            toast.success('Package delivery is confirmed by you!')
+            setLoading(false);
+            toast.success('Package delivery is confirmed by you!');
         } catch (e) {
             setLoading(false);
             toast.error("Something went wrong!");
         }
-    }
+    };
 
     const handleSubmitDeliverOrder = (data) => {
         Swal.fire({
@@ -146,7 +149,7 @@ const DeliveryAcceptPackages = () => {
             showLoaderOnConfirm: true, // Show loader when confirming
             preConfirm: () => {
                 return new Promise((resolve) => {
-                    const requestData = {delivery_user: data.delivery_user, order_id: data.id};
+                    const requestData = { delivery_user: data.delivery_user, order_id: data.id };
 
                     // Show loader
                     Swal.showLoading();
@@ -205,7 +208,7 @@ const DeliveryAcceptPackages = () => {
     };
     return (
         <>
-            {(loading) && <Loader/>}
+            {(loading) && <Loader />}
             <div class="breadcrumb-section breadcrumb-bg">
                 <div class="container">
                     <div class="row">
@@ -240,54 +243,54 @@ const DeliveryAcceptPackages = () => {
                                     <div class="total-section">
                                         <table class="total-table">
                                             <thead class="total-table-head">
-                                            <tr class="table-total-row">
-                                                <th>Payment Id</th>
-                                                <th>Total Price</th>
-                                                <th>Product Details</th>
-                                            </tr>
+                                                <tr class="table-total-row">
+                                                    <th>Payment Id</th>
+                                                    <th>Total Price</th>
+                                                    <th>Product Details</th>
+                                                </tr>
                                             </thead>
                                             <tbody>
 
-                                            <tr className="total-data">
-                                                <td><strong>{modalOrder?.payment_id}</strong></td>
+                                                <tr className="total-data">
+                                                    <td><strong>{modalOrder?.payment_id}</strong></td>
 
-                                                <td>{modalOrder?.total_price}</td>
-                                                <td>
-                                                    <table class="total-table">
-                                                        <thead class="total-table-head">
-                                                        <tr class="table-total-row">
-                                                            <th>Name</th>
-                                                            <th>Image</th>
-                                                            <th>Price(per unit)</th>
-                                                            <th>Quantity</th>
-                                                            <th>Total Price</th>
-                                                        </tr>
-                                                        </thead>
+                                                    <td>{modalOrder?.total_price}</td>
+                                                    <td>
+                                                        <table class="total-table">
+                                                            <thead class="total-table-head">
+                                                                <tr class="table-total-row">
+                                                                    <th>Name</th>
+                                                                    <th>Image</th>
+                                                                    <th>Price(per unit)</th>
+                                                                    <th>Quantity</th>
+                                                                    <th>Total Price</th>
+                                                                </tr>
+                                                            </thead>
 
-                                                        <tbody>
-                                                        {modalOrder?.order_products.map((item, i) => (
-                                                            <tr key={i} className="total-data">
-                                                                <td>{item.product.name}</td>
-                                                                <td><img
-                                                                    src={item.product.image}
-                                                                    alt="Product Image"
-                                                                    style={{
-                                                                        width: 100,
-                                                                        height: 100,
-                                                                        borderRadius: '50%'
-                                                                    }}
-                                                                /></td>
-                                                                <td>{item.product.price}</td>
-                                                                <td>{item.quantity}</td>
+                                                            <tbody>
+                                                                {modalOrder?.order_products.map((item, i) => (
+                                                                    <tr key={i} className="total-data">
+                                                                        <td>{item.product.name}</td>
+                                                                        <td><img
+                                                                            src={item.product.image}
+                                                                            alt="Product Image"
+                                                                            style={{
+                                                                                width: 100,
+                                                                                height: 100,
+                                                                                borderRadius: '50%'
+                                                                            }}
+                                                                        /></td>
+                                                                        <td>{item.product.price}</td>
+                                                                        <td>{item.quantity}</td>
 
-                                                                <td> {parseInt(item.product.price) * item.quantity}</td>
-                                                            </tr>
-                                                        ))}
+                                                                        <td> {parseInt(item.product.price) * item.quantity}</td>
+                                                                    </tr>
+                                                                ))}
 
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr>
 
                                             </tbody>
                                         </table>
@@ -297,57 +300,57 @@ const DeliveryAcceptPackages = () => {
                         </Modal>
                         <div className="col-lg-12">
                             <MaterialTable title="All Pending Orders" icons={tableIcons} columns={columns} data={orders}
-                                           options={{
-                                               sorting: true,
-                                               search: true,
-                                               searchFieldAlignment: "right",
-                                               searchAutoFocus: true,
-                                               searchFieldVariant: "standard",
-                                               filtering: true,
-                                               paging: true,
-                                               pageSizeOptions: [2, 5, 10, 20],
-                                               pageSize: 5,
-                                               paginationType: "normal",
-                                               showFirstLastPageButtons: true,
-                                               paginationPosition: "bottom",
-                                               exportButton: false,
-                                               exportAllData: true,
-                                               exportFileName: "TableData",
-                                               addRowPosition: "first",
-                                               actionsColumnIndex: -1,
-                                               selection: false,
-                                               showSelectAllCheckbox: false,
-                                               showTextRowsSelected: false,
-                                               selectionProps: rowData => ({
-                                                   // disabled: rowData.passingYear == null,
+                                options={{
+                                    sorting: true,
+                                    search: true,
+                                    searchFieldAlignment: "right",
+                                    searchAutoFocus: true,
+                                    searchFieldVariant: "standard",
+                                    filtering: true,
+                                    paging: true,
+                                    pageSizeOptions: [2, 5, 10, 20],
+                                    pageSize: 5,
+                                    paginationType: "normal",
+                                    showFirstLastPageButtons: true,
+                                    paginationPosition: "bottom",
+                                    exportButton: false,
+                                    exportAllData: true,
+                                    exportFileName: "TableData",
+                                    addRowPosition: "first",
+                                    actionsColumnIndex: -1,
+                                    selection: false,
+                                    showSelectAllCheckbox: false,
+                                    showTextRowsSelected: false,
+                                    selectionProps: rowData => ({
+                                        // disabled: rowData.passingYear == null,
 
-                                               }),
-                                               columnsButton: false,
-                                               rowStyle: {
-                                                   fontSize: 16,
-                                               }
-                                               /*rowStyle: (data, index) => index % 2 === 0 ? { background: "#f5f5f5" } : null,
-                                               headerStyle: { background: "#f44336", color: "#fff" }*/
-                                           }}
-                                           localization={{
-                                               header: {
-                                                   actions: 'action',
+                                    }),
+                                    columnsButton: false,
+                                    rowStyle: {
+                                        fontSize: 16,
+                                    }
+                                    /*rowStyle: (data, index) => index % 2 === 0 ? { background: "#f5f5f5" } : null,
+                                    headerStyle: { background: "#f44336", color: "#fff" }*/
+                                }}
+                                localization={{
+                                    header: {
+                                        actions: 'action',
 
-                                               }
-                                           }}
-                                           actions={[
-                                               // {
-                                               //     icon: () => <VisibilityIcon/>,
-                                               //     tooltip: "details",
-                                               //     onClick: (e, data) => handleModalOpen(data),
-                                               // },
-                                               {
-                                                   icon: () => <CheckIcon htmlColor='green'/>,
-                                                   tooltip: "accept",
-                                                   onClick: (e, data) => handleSubmitDeliverOrder(data),
-                                               },
+                                    }
+                                }}
+                                actions={[
+                                    // {
+                                    //     icon: () => <VisibilityIcon/>,
+                                    //     tooltip: "details",
+                                    //     onClick: (e, data) => handleModalOpen(data),
+                                    // },
+                                    {
+                                        icon: () => <CheckIcon htmlColor='green' />,
+                                        tooltip: "accept",
+                                        onClick: (e, data) => handleSubmitDeliverOrder(data),
+                                    },
 
-                                           ]}
+                                ]}
 
                             />
                         </div>
